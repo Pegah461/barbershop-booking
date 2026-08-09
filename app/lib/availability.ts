@@ -68,12 +68,24 @@ export async function getAvailableSlots({
   serviceId,
   addonIds = [],
   _now,
+  durationMinsOverride,
+  excludeBookingId,
 }: {
   date: string
   serviceId: string
   addonIds?: string[]
   /** Injectable for tests — defaults to Date.now() in production */
   _now?: Date
+  /**
+   * Use this exact duration instead of deriving it from the service/addons'
+   * current DB records. Rescheduling must fit the appointment's already-
+   * agreed duration (frozen on the Booking row), not whatever the service
+   * happens to be configured as today.
+   */
+  durationMinsOverride?: number
+  /** Exclude this booking's own reservation from the overlap check — used
+   * when rescheduling, so a booking doesn't block its own new slot. */
+  excludeBookingId?: string
 }): Promise<string[]> {
   // ── 1. Load settings, service, addons ─────────────────────────────────────
   const [settings, service, addons] = await Promise.all([
@@ -109,7 +121,8 @@ export async function getAvailableSlots({
 
   // ── 5. Required duration: service + addons + buffer ───────────────────────
   const addonMins = addons.reduce((s, a) => s + a.extraDurationMins, 0)
-  const requiredMins = service.durationMins + addonMins + settings.bufferMins
+  const baseMins = durationMinsOverride ?? service.durationMins + addonMins
+  const requiredMins = baseMins + settings.bufferMins
 
   // ── 6. Generate candidate start times (UTC) stepping by slotIntervalMins ──
   const openUtc  = shopDt(date, hours.openTime)
@@ -134,6 +147,7 @@ export async function getAvailableSlots({
       where: {
         status:   { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
         startsAt: { gte: dayStartUtc, lt: dayEndUtc },
+        ...(excludeBookingId ? { id: { not: excludeBookingId } } : {}),
       },
       select: { startsAt: true, endsAt: true },
     }),

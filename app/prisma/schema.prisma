@@ -105,7 +105,7 @@ model BusinessHours {
   id         String   @id @default(cuid())
   dayOfWeek  Int      // 0–6
   isOpen     Boolean  @default(true)
-  openTime   String   // "HH:mm" in shop local timezone (Pacific/Solomon Islands)
+  openTime   String   // "HH:mm" in shop local timezone (Pacific/Fiji)
   closeTime  String   // "HH:mm" in shop local timezone
   breakStart String?  // "HH:mm" optional break window start
   breakEnd   String?  // "HH:mm" optional break window end

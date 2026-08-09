@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { requireAdmin } from "@/lib/admin"
 import { db } from "@/lib/prisma"
 import { BookingStatus } from "@/generated/prisma/enums"
+import { sendBookingCancelledEmail } from "@/lib/email/booking-emails"
 
 const TERMINAL: BookingStatus[] = [BookingStatus.COMPLETED, BookingStatus.NO_SHOW, BookingStatus.CANCELLED]
 
@@ -16,6 +17,15 @@ async function setStatus(id: string, status: BookingStatus): Promise<{ error?: s
     const data: Record<string, unknown> = { status }
     if (status === BookingStatus.CANCELLED) data.cancelledAt = new Date()
     await db.booking.update({ where: { id }, data })
+
+    if (status === BookingStatus.CANCELLED) {
+      try {
+        await sendBookingCancelledEmail(id)
+      } catch (e) {
+        console.error("Failed to send cancellation email", e)
+      }
+    }
+
     revalidatePath("/admin/appointments")
     revalidatePath(`/admin/appointments/${id}`)
     return {}
