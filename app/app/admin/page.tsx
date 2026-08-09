@@ -1,5 +1,4 @@
 import { fromZonedTime, formatInTimeZone } from "date-fns-tz"
-import { formatDistanceToNow } from "date-fns"
 import Link from "next/link"
 import { db } from "@/lib/prisma"
 import { SHOP_TZ } from "@/lib/availability"

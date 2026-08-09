@@ -24,6 +24,12 @@ async function setStatus(id: string, status: BookingStatus): Promise<{ error?: s
   }
 }
 
-export const markCompleted = (id: string) => setStatus(id, BookingStatus.COMPLETED)
-export const markNoShow    = (id: string) => setStatus(id, BookingStatus.NO_SHOW)
-export const markCancelled = (id: string) => setStatus(id, BookingStatus.CANCELLED)
+export async function markCompleted(id: string) {
+  return setStatus(id, BookingStatus.COMPLETED)
+}
+export async function markNoShow(id: string) {
+  return setStatus(id, BookingStatus.NO_SHOW)
+}
+export async function markCancelled(id: string) {
+  return setStatus(id, BookingStatus.CANCELLED)
+}

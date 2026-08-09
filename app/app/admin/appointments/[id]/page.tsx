@@ -4,8 +4,6 @@ import { formatInTimeZone } from "date-fns-tz"
 import { db } from "@/lib/prisma"
 import { SHOP_TZ } from "@/lib/availability"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import { AppointmentActions } from "./AppointmentActions"
 
 const STATUS_COLORS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {

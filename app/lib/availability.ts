@@ -7,10 +7,9 @@ import { addMinutes, isBefore, isAfter } from "date-fns"
 import { fromZonedTime, toZonedTime } from "date-fns-tz"
 import { db } from "@/lib/prisma"
 import { BookingStatus } from "@/generated/prisma/enums"
+import { SHOP_TZ } from "@/lib/timezone"
 
-// IANA identifier for Solomon Islands Time (UTC+11, no DST).
-// "Pacific/Solomon Islands" is not a valid IANA name — use Pacific/Guadalcanal.
-export const SHOP_TZ = "Pacific/Guadalcanal"
+export { SHOP_TZ }
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
 

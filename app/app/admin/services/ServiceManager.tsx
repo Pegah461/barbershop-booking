@@ -160,6 +160,7 @@ export function ServiceManager({ services }: { services: Service[] }) {
       </div>
 
       <ServiceDialog
+        key={dialog.service?.id ?? "new"}
         service={dialog.service}
         open={dialog.open}
         onClose={() => setDialog({ open: false })}

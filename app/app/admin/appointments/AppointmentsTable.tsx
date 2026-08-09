@@ -16,7 +16,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
 import { markCompleted, markNoShow, markCancelled } from "./actions"
-import { SHOP_TZ } from "@/lib/availability"
+import { SHOP_TZ } from "@/lib/timezone"
 
 const STATUS_COLORS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   PENDING:   "outline",

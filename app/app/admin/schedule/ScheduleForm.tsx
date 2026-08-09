@@ -7,7 +7,6 @@ import { toast } from "sonner"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { ScheduleFormSchema, type ScheduleFormValues } from "@/lib/validations/admin"
 import { saveSchedule } from "./actions"
 
@@ -63,7 +62,7 @@ export function ScheduleForm({ initialHours }: { initialHours: ScheduleFormValue
                       <Input
                         type="time"
                         disabled={!isOpen}
-                        {...register(`hours.${i}.${col}` as any)}
+                        {...register(`hours.${i}.${col}`)}
                         className="w-32 disabled:opacity-40"
                       />
                     </td>

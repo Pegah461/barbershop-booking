@@ -129,7 +129,7 @@ export function AddonManager({ addons }: { addons: Addon[] }) {
           </TableBody>
         </Table>
       </div>
-      <AddonDialog addon={dialog.addon} open={dialog.open} onClose={() => setDialog({ open: false })} />
+      <AddonDialog key={dialog.addon?.id ?? "new"} addon={dialog.addon} open={dialog.open} onClose={() => setDialog({ open: false })} />
     </>
   )
 }

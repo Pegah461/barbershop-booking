@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ClosureFormSchema, type ClosureFormValues } from "@/lib/validations/admin"
 import { createClosure, deleteClosure } from "./actions"
-import { SHOP_TZ } from "@/lib/availability"
+import { SHOP_TZ } from "@/lib/timezone"
 
 type Closure = { id: string; startsAt: Date; endsAt: Date; isAllDay: boolean; reason: string | null }
 
