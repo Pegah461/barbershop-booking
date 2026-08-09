@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+// ── Auth.js models (Prisma adapter required shapes) ───────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(CUSTOMER)
+  accounts      Account[]
+  sessions      Session[]
+  reviews       Review[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ── Services & addons (DB rows only — never hardcoded) ────────────────────────
+
+model Service {
+  id           String    @id @default(cuid())
+  name         String
+  priceCents   Int
+  durationMins Int
+  isActive     Boolean   @default(true)
+  sortOrder    Int       @default(0)
+  bookings     Booking[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Addon {
+  id                String         @id @default(cuid())
+  name              String
+  priceCents        Int
+  extraDurationMins Int
+  isActive          Boolean        @default(true)
+  sortOrder         Int            @default(0)
+  bookingAddons     BookingAddon[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+// ── Schedule ──────────────────────────────────────────────────────────────────
+
+// dayOfWeek: 0 = Sunday … 6 = Saturday
+model BusinessHours {
+  id         String   @id @default(cuid())
+  dayOfWeek  Int      // 0–6
+  isOpen     Boolean  @default(true)
+  openTime   String   // "HH:mm" in shop local timezone (Pacific/Solomon Islands)
+  closeTime  String   // "HH:mm" in shop local timezone
+  breakStart String?  // "HH:mm" optional break window start
+  breakEnd   String?  // "HH:mm" optional break window end
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([dayOfWeek])
+}
+
+// Full-day closure: startsAt/endsAt span midnight-to-midnight in shop timezone (stored UTC).
+// Partial-day closure: exact UTC boundaries.
+model Closure {
+  id        String   @id @default(cuid())
+  startsAt  DateTime // UTC
+  endsAt    DateTime // UTC
+  isAllDay  Boolean  @default(true)
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── Settings singleton ────────────────────────────────────────────────────────
+
+// Always read/write with id = "singleton"
+model Settings {
+  id                String   @id @default("singleton")
+  shopName          String   @default("Barbershop")
+  shopPhone         String   @default("")
+  shopEmail         String   @default("")
+  slotIntervalMins  Int      @default(15)  // minutes between slot start times
+  bufferMins        Int      @default(0)   // gap between appointments
+  minLeadTimeHours  Int      @default(2)   // earliest a customer can book
+  maxBookAheadDays  Int      @default(30)  // furthest ahead a customer can book
+  cancelCutoffHours Int      @default(24)  // cutoff before appt for self-serve changes
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ── Bookings ──────────────────────────────────────────────────────────────────
+
+model Booking {
+  id          String @id @default(cuid())
+  // Short human-readable code shown to customer (e.g. "BRB-4F2A")
+  reference   String        @unique
+  // 32-byte hex token emailed to customer; used to authenticate manage-booking page
+  manageToken String        @unique
+  serviceId   String
+  service     Service       @relation(fields: [serviceId], references: [id])
+  // Snapshots — must not change when admin edits service/addon later
+  serviceName         String
+  servicePriceCents   Int
+  serviceDurationMins Int
+  status              BookingStatus @default(PENDING)
+  startsAt            DateTime      // UTC
+  endsAt              DateTime      // UTC
+  durationMins        Int           // total duration including all addons
+  totalCents          Int           // total price snapshot
+  customerName        String
+  customerPhone       String
+  customerEmail       String
+  customerComments    String?
+  cancelledAt         DateTime?
+  rescheduledAt       DateTime?
+  addons              BookingAddon[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([startsAt, status])
+  @@index([customerEmail])
+}
+
+model BookingAddon {
+  id        String  @id @default(cuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  addonId   String
+  addon     Addon   @relation(fields: [addonId], references: [id])
+  // Snapshots
+  addonName         String
+  addonPriceCents   Int
+  addonDurationMins Int
+
+  @@unique([bookingId, addonId])
+}
+
+// ── Gallery & Reviews ─────────────────────────────────────────────────────────
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  altText   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating     Int      // 1–5
+  comment    String?  @db.Text
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId]) // one review per Google account
+}
