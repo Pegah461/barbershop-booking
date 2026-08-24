@@ -31,28 +31,30 @@ export const StepDetails = forwardRef<StepDetailsHandle, { defaultValues: Custom
     }))
 
     return (
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-        <h2 className="text-lg font-semibold">Your details</h2>
+      <form className="space-y-3.5" onSubmit={(e) => e.preventDefault()}>
+        <h4 className="mb-3.5">Your details</h4>
 
-        <div className="space-y-1">
-          <Label htmlFor="customerName">Name</Label>
-          <Input id="customerName" {...form.register("customerName")} />
-          {form.formState.errors.customerName && (
-            <p className="text-xs text-destructive">{form.formState.errors.customerName.message}</p>
-          )}
-        </div>
+        <div className="grid gap-3.5 sm:grid-cols-2">
+          <div className="space-y-1">
+            <Label htmlFor="customerName">Name</Label>
+            <Input id="customerName" placeholder="Full name" {...form.register("customerName")} />
+            {form.formState.errors.customerName && (
+              <p className="text-xs text-destructive">{form.formState.errors.customerName.message}</p>
+            )}
+          </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="customerPhone">Phone</Label>
-          <Input id="customerPhone" type="tel" {...form.register("customerPhone")} />
-          {form.formState.errors.customerPhone && (
-            <p className="text-xs text-destructive">{form.formState.errors.customerPhone.message}</p>
-          )}
+          <div className="space-y-1">
+            <Label htmlFor="customerPhone">Phone</Label>
+            <Input id="customerPhone" type="tel" placeholder="e.g. 555 0148" {...form.register("customerPhone")} />
+            {form.formState.errors.customerPhone && (
+              <p className="text-xs text-destructive">{form.formState.errors.customerPhone.message}</p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="customerEmail">Email</Label>
-          <Input id="customerEmail" type="email" {...form.register("customerEmail")} />
+          <Input id="customerEmail" type="email" placeholder="you@example.com" {...form.register("customerEmail")} />
           {form.formState.errors.customerEmail && (
             <p className="text-xs text-destructive">{form.formState.errors.customerEmail.message}</p>
           )}
@@ -60,7 +62,12 @@ export const StepDetails = forwardRef<StepDetailsHandle, { defaultValues: Custom
 
         <div className="space-y-1">
           <Label htmlFor="customerComments">Comments (optional)</Label>
-          <Textarea id="customerComments" rows={3} {...form.register("customerComments")} />
+          <Textarea
+            id="customerComments"
+            rows={3}
+            placeholder="Anything the barber should know"
+            {...form.register("customerComments")}
+          />
           {form.formState.errors.customerComments && (
             <p className="text-xs text-destructive">{form.formState.errors.customerComments.message}</p>
           )}

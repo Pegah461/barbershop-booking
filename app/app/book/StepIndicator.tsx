@@ -1,49 +1,41 @@
 "use client"
 
-import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+/**
+ * Industry design system: the wizard's progress is a single hairline-divided
+ * strip of segments, not a row of circles — the active step is a solid accent
+ * fill, unreached steps are dimmed and inert.
+ */
 export function StepIndicator({
   labels, current, maxReached, onSelect,
 }: {
   labels: string[]; current: number; maxReached: number; onSelect: (step: number) => void
 }) {
   return (
-    <ol className="flex items-center">
+    <ol className="flex border border-border">
       {labels.map((label, i) => {
         const step = i + 1
         const reachable = step <= maxReached
         const active = step === current
-        const done = step < current
 
         return (
-          <li key={label} className="flex flex-1 items-center last:flex-none">
+          <li key={label} className="flex flex-1 first:[&>button]:border-l-0">
             <button
               type="button"
               disabled={!reachable}
               onClick={() => onSelect(step)}
-              className="flex flex-col items-center gap-1 disabled:cursor-not-allowed"
+              aria-current={active ? "step" : undefined}
+              className={cn(
+                "flex w-full items-center justify-center gap-2 border-l border-border px-1 py-2.5 font-heading text-[13px] font-semibold tracking-[0.04em] transition-colors",
+                active ? "bg-brand text-primary-foreground" : "bg-transparent",
+                !reachable && "cursor-not-allowed opacity-40",
+                reachable && !active && "hover:bg-foreground/[0.06]",
+              )}
             >
-              <span
-                className={cn(
-                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-medium",
-                  active && "border-primary bg-primary text-primary-foreground",
-                  done && !active && "border-primary text-primary",
-                  !active && !done && "border-border text-muted-foreground",
-                )}
-              >
-                {done ? <Check className="h-3.5 w-3.5" /> : step}
-              </span>
-              <span
-                className={cn(
-                  "hidden text-[11px] sm:block",
-                  active ? "font-medium text-foreground" : "text-muted-foreground",
-                )}
-              >
-                {label}
-              </span>
+              <span className="text-[11px] opacity-70">{String(step).padStart(2, "0")}</span>
+              <span className="hidden sm:inline">{label}</span>
             </button>
-            {step < labels.length && <span className="mx-2 h-px flex-1 bg-border" />}
           </li>
         )
       })}

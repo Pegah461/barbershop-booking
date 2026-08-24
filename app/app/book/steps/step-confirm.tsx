@@ -2,7 +2,7 @@
 
 import { formatInTimeZone } from "date-fns-tz"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, formatMoney } from "@/lib/utils"
 import { SHOP_TZ } from "@/lib/timezone"
 import type { ServiceOption, AddonOption, WizardDetails } from "../types"
 
@@ -19,22 +19,36 @@ export function StepConfirm({
   onSubmit: () => void
 }) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Confirm your booking</h2>
+    <div>
+      <h4 className="mb-3.5">Confirm your booking</h4>
 
-      <div className="divide-y rounded-lg border text-sm">
-        <Row label="Service" value={service.name} />
-        {addons.length > 0 && <Row label="Add-ons" value={addons.map((a) => a.name).join(", ")} />}
-        <Row label="When" value={formatInTimeZone(new Date(startsAt), SHOP_TZ, "EEEE, MMM d 'at' h:mm a")} />
-        <Row label="Duration" value={`${durationMins} min`} />
-        <Row label="Total" value={`$${(totalCents / 100).toFixed(2)}`} bold />
-        <Row label="Name" value={details.customerName} />
-        <Row label="Phone" value={details.customerPhone} />
-        <Row label="Email" value={details.customerEmail} />
-        {details.customerComments && <Row label="Comments" value={details.customerComments} />}
-      </div>
+      <table className="w-full border-collapse text-sm">
+        <tbody>
+          <Row label="Service" value={service.name} />
+          {addons.length > 0 && <Row label="Add-ons" value={addons.map((a) => a.name).join(", ")} />}
+          <Row
+            label="When"
+            value={formatInTimeZone(new Date(startsAt), SHOP_TZ, "EEEE, MMM d 'at' h:mm a")}
+          />
+          <Row label="Duration" value={`${durationMins} min`} />
+          <Row label="Total" value={formatMoney(totalCents)} bold />
+          <Row label="Name" value={details.customerName} />
+          <Row label="Phone" value={details.customerPhone} />
+          <Row label="Email" value={details.customerEmail} />
+          {details.customerComments && <Row label="Comments" value={details.customerComments} />}
+        </tbody>
+      </table>
 
-      <Button className="w-full" size="lg" onClick={onSubmit} disabled={submitting}>
+      <Button
+        className="blueprint mt-4.5 w-full"
+        size="lg"
+        onClick={onSubmit}
+        disabled={submitting}
+      >
+        <i className="corner corner-tl" />
+        <i className="corner corner-tr" />
+        <i className="corner corner-bl" />
+        <i className="corner corner-br" />
         {submitting ? "Booking…" : "Confirm booking"}
       </Button>
     </div>
@@ -43,9 +57,13 @@ export function StepConfirm({
 
 function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
-    <div className="flex justify-between gap-4 p-3">
-      <span className="text-muted-foreground">{label}</span>
-      <span className={cn("text-right", bold && "font-semibold")}>{value}</span>
-    </div>
+    <tr className="border-b border-foreground/[0.08]">
+      <th className="w-[34%] px-1.5 py-2 text-left text-[11px] font-normal uppercase tracking-[0.08em] text-foreground/60">
+        {label}
+      </th>
+      <td className={cn("px-1.5 py-2 text-right", bold && "font-heading text-base font-semibold")}>
+        {value}
+      </td>
+    </tr>
   )
 }

@@ -1,28 +1,36 @@
+import { formatMoney } from "@/lib/utils"
 import type { ServiceOption, AddonOption } from "./types"
 
+/**
+ * The running selection band that sits under the step strip: what you've
+ * picked on the left, duration and total on the right.
+ */
 export function PriceSummary({
-  service, addons, totalCents, durationMins,
+  service, addons, totalCents, durationMins, whenLabel,
 }: {
-  service: ServiceOption | null; addons: AddonOption[]; totalCents: number; durationMins: number
+  service: ServiceOption | null
+  addons: AddonOption[]
+  totalCents: number
+  durationMins: number
+  whenLabel?: string
 }) {
-  if (!service) {
-    return (
-      <div className="sticky top-0 z-10 rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-        Select a service to see pricing.
-      </div>
-    )
-  }
+  const selection = service
+    ? [service.name, ...addons.map((a) => a.name)].join(" + ") +
+      ` · ${whenLabel ?? "no time picked"}`
+    : "Select a service to see pricing."
 
   return (
-    <div className="sticky top-0 z-10 flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm">
-      <div>
-        <p className="font-medium">
-          {service.name}
-          {addons.length > 0 && ` + ${addons.length} add-on${addons.length > 1 ? "s" : ""}`}
-        </p>
-        <p className="text-sm text-muted-foreground">{durationMins} min</p>
+    <div className="flex items-center gap-4 border border-border bg-brand/[0.07] px-4 py-3">
+      <div className="min-w-0 flex-1">
+        <div className="kicker">Selection</div>
+        <div className="truncate text-sm">{selection}</div>
       </div>
-      <p className="text-lg font-bold">${(totalCents / 100).toFixed(2)}</p>
+      <div className="shrink-0 text-right">
+        <div className="kicker">{durationMins} min</div>
+        <div className="font-heading text-[26px] font-semibold leading-none">
+          {formatMoney(totalCents)}
+        </div>
+      </div>
     </div>
   )
 }

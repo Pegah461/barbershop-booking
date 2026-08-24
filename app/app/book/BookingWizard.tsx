@@ -2,8 +2,11 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
+import { formatInTimeZone } from "date-fns-tz"
 import { toast } from "sonner"
+import { Blueprint } from "@/components/ui/blueprint"
 import { Button } from "@/components/ui/button"
+import { SHOP_TZ } from "@/lib/timezone"
 import { StepIndicator } from "./StepIndicator"
 import { PriceSummary } from "./PriceSummary"
 import { StepService } from "./steps/step-service"
@@ -26,7 +29,14 @@ const DEFAULT_STATE: WizardState = {
   details: { customerName: "", customerPhone: "", customerEmail: "", customerComments: "" },
 }
 
-export function BookingWizard({ services, addons }: { services: ServiceOption[]; addons: AddonOption[] }) {
+export function BookingWizard({
+  services, addons, initialServiceId = null,
+}: {
+  services: ServiceOption[]
+  addons: AddonOption[]
+  /** Preselected service from a "Book this" deep link on the landing page. */
+  initialServiceId?: string | null
+}) {
   const router = useRouter()
   const [state, setState] = useState<WizardState>(DEFAULT_STATE)
   const [hydrated, setHydrated] = useState(false)
@@ -39,15 +49,22 @@ export function BookingWizard({ services, addons }: { services: ServiceOption[];
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY)
+      const stored: WizardState = raw ? { ...DEFAULT_STATE, ...JSON.parse(raw) } : DEFAULT_STATE
+      // A "Book this" deep link is an explicit choice — it overrides whatever
+      // service was left in storage, and clears everything derived from it.
+      const next =
+        initialServiceId && initialServiceId !== stored.serviceId
+          ? { ...stored, serviceId: initialServiceId, addonIds: [], date: null, startsAt: null }
+          : stored
       // One-time sync read of a browser-only API on mount — the `hydrated`
       // gate below (not this callback) is what prevents the SSR/CSR mismatch.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (raw) setState({ ...DEFAULT_STATE, ...JSON.parse(raw) })
+      setState(next)
     } catch {
       // corrupt or unavailable storage — fall back to defaults
     }
     setHydrated(true)
-  }, [])
+  }, [initialServiceId])
 
   useEffect(() => {
     if (!hydrated) return
@@ -133,13 +150,23 @@ export function BookingWizard({ services, addons }: { services: ServiceOption[];
   // Avoid a flash of default (step-1) content before sessionStorage loads.
   if (!hydrated) return null
 
+  const whenLabel = state.startsAt
+    ? formatInTimeZone(new Date(state.startsAt), SHOP_TZ, "EEE, MMM d 'at' h:mm a")
+    : undefined
+
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-[780px] space-y-5 px-7 py-8">
       <StepIndicator labels={STEP_LABELS} current={state.step} maxReached={state.maxStepReached} onSelect={goToStep} />
 
-      <PriceSummary service={selectedService} addons={selectedAddons} totalCents={totalCents} durationMins={durationMins} />
+      <PriceSummary
+        service={selectedService}
+        addons={selectedAddons}
+        totalCents={totalCents}
+        durationMins={durationMins}
+        whenLabel={whenLabel}
+      />
 
-      <div className="rounded-lg border bg-white p-6">
+      <Blueprint className="p-6">
         {state.step === 1 && (
           <StepService
             services={services}
@@ -180,14 +207,18 @@ export function BookingWizard({ services, addons }: { services: ServiceOption[];
             onSubmit={handleSubmit}
           />
         )}
-      </div>
+      </Blueprint>
 
       <div className="flex justify-between">
         <Button variant="outline" onClick={goBack} disabled={state.step === 1}>
           Back
         </Button>
         {state.step < 5 && (
-          <Button onClick={goNext} disabled={!canAdvance}>
+          <Button className="blueprint" onClick={goNext} disabled={!canAdvance}>
+            <i className="corner corner-tl" />
+            <i className="corner corner-tr" />
+            <i className="corner corner-bl" />
+            <i className="corner corner-br" />
             Next
           </Button>
         )}

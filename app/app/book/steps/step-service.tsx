@@ -1,7 +1,7 @@
 "use client"
 
 import { Check } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatMoney } from "@/lib/utils"
 import type { ServiceOption } from "../types"
 
 export function StepService({
@@ -10,8 +10,8 @@ export function StepService({
   services: ServiceOption[]; selectedId: string | null; onSelect: (id: string) => void
 }) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Choose a service</h2>
+    <div>
+      <h4 className="mb-3.5">Choose a service</h4>
 
       {services.length === 0 && (
         <p className="text-sm text-muted-foreground">No services are available right now.</p>
@@ -27,14 +27,18 @@ export function StepService({
               onClick={() => onSelect(s.id)}
               aria-pressed={selected}
               className={cn(
-                "relative rounded-lg border p-4 text-left transition-colors hover:border-primary/60",
-                selected ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border",
+                "relative border p-3.5 text-left transition-colors",
+                selected
+                  ? "border-brand bg-brand/[0.08]"
+                  : "border-border hover:border-foreground/40",
               )}
             >
-              {selected && <Check className="absolute right-3 top-3 h-4 w-4 text-primary" />}
-              <p className="pr-6 font-medium">{s.name}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{s.durationMins} min</p>
-              <p className="mt-2 text-sm font-semibold">${(s.priceCents / 100).toFixed(2)}</p>
+              {selected && <Check className="absolute right-3 top-3 h-[15px] w-[15px] text-brand" />}
+              <div className="pr-6 font-heading text-xl font-semibold">{s.name}</div>
+              <div className="text-xs text-foreground/55">{s.durationMins} min</div>
+              <div className="mt-1.5 font-heading text-[17px] font-semibold">
+                {formatMoney(s.priceCents)}
+              </div>
             </button>
           )
         })}

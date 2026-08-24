@@ -82,38 +82,49 @@ export function StepDatetime({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slotsKey])
 
+  const slotsNote = !date
+    ? "Pick a date on the left to see the times that are still open."
+    : loadingSlots
+      ? "Loading available times…"
+      : displaySlots.length === 0
+        ? "No times available on this day — try another date."
+        : `${displaySlots.length} time${displaySlots.length === 1 ? "" : "s"} open. Times are shown in shop local time.`
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Pick a date &amp; time</h2>
+    <div>
+      <h4 className="mb-3.5">Pick a date &amp; time</h4>
 
       {notice && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <div className="mb-3.5 border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {notice}
         </div>
       )}
 
-      <div className="flex justify-center rounded-lg border">
-        <Calendar
-          mode="single"
-          month={month}
-          onMonthChange={setMonth}
-          selected={date ? dateStrToLocalDate(date) : undefined}
-          onSelect={(d) => d && onDateChange(localDateToDateStr(d))}
-          disabled={(d) => loadingDays || !availableDays.has(localDateToDateStr(d))}
-        />
-      </div>
-
-      {date && (
-        <div className="space-y-2">
-          <p className="text-sm font-medium">
-            Times for {format(dateStrToLocalDate(date), "EEEE, MMM d")}
+      <div className="grid items-start gap-6 md:grid-cols-[296px_1fr]">
+        <div className="border border-border p-3">
+          <Calendar
+            mode="single"
+            month={month}
+            onMonthChange={setMonth}
+            selected={date ? dateStrToLocalDate(date) : undefined}
+            onSelect={(d) => d && onDateChange(localDateToDateStr(d))}
+            disabled={(d) => loadingDays || !availableDays.has(localDateToDateStr(d))}
+            className="p-0"
+          />
+          <p className="mt-2.5 text-[11px] text-foreground/50">
+            Greyed dates are closed, fully booked, or inside the lead time.
           </p>
-          {loadingSlots ? (
-            <p className="text-sm text-muted-foreground">Loading available times…</p>
-          ) : displaySlots.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No times available on this day — try another date.</p>
-          ) : (
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+        </div>
+
+        <div>
+          <div className="kicker mb-2">
+            {date
+              ? `Times for ${format(dateStrToLocalDate(date), "EEEE, MMM d")}`
+              : "Pick a date first"}
+          </div>
+
+          {displaySlots.length > 0 && !loadingSlots && (
+            <div className="grid grid-cols-3 gap-[7px] sm:grid-cols-4">
               {displaySlots.map((slot) => (
                 <Button
                   key={slot}
@@ -127,8 +138,10 @@ export function StepDatetime({
               ))}
             </div>
           )}
+
+          <p className="mt-3 text-xs text-foreground/55">{slotsNote}</p>
         </div>
-      )}
+      </div>
     </div>
   )
 }

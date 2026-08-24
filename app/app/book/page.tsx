@@ -5,7 +5,10 @@ import { BookingWizard } from "./BookingWizard"
 // data — this page must never be statically frozen at build time.
 export const dynamic = "force-dynamic"
 
-export default async function BookPage() {
+export default async function BookPage({ searchParams }: PageProps<"/book">) {
+  const { service } = await searchParams
+  const requestedService = Array.isArray(service) ? service[0] : service
+
   const [services, addons] = await Promise.all([
     db.service.findMany({
       where:   { isActive: true },
@@ -19,9 +22,13 @@ export default async function BookPage() {
     }),
   ])
 
+  // Only honour a deep link that names a service still on offer.
+  const initialServiceId =
+    services.some((s) => s.id === requestedService) ? requestedService! : null
+
   return (
-    <div className="min-h-screen bg-muted/20">
-      <BookingWizard services={services} addons={addons} />
-    </div>
+    <main className="flex-1">
+      <BookingWizard services={services} addons={addons} initialServiceId={initialServiceId} />
+    </main>
   )
 }
