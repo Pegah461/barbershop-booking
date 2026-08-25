@@ -27,7 +27,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
     services.some((s) => s.id === requestedService) ? requestedService! : null
 
   return (
-    <main className="flex-1">
+    <main id="main" className="flex-1">
       <BookingWizard services={services} addons={addons} initialServiceId={initialServiceId} />
     </main>
   )

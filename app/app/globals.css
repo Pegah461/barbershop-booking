@@ -1,63 +1,80 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* ============================================================================
-   "Industry" design system — imported from Claude Design.
-   Flat, square, hairline-ruled wireframe aesthetic: Barlow / Barlow Condensed,
-   a single slate-blue accent, tonal ramps on one shared lightness scale, and
-   blueprint registration marks on the surfaces that carry weight.
+   FADES BARBERSHOP — "the fade" design system.
+
+   The whole system is one idea: a fade is a graded sequence of clipper-guard
+   steps, dark at the nape and light at the top. The page runs the same way —
+   `nape` at the top of the document, `strip` for the body of it — and the
+   guard rail down the left edge makes the steps visible.
+
+   Colour roles are split by the ground they sit on, because a single accent
+   hex cannot clear AA on both a near-black and a near-white surface. Use the
+   `-ink` variants on light grounds and the base/`-light` variants on dark.
    ========================================================================= */
 
 @layer base {
   :root {
-    /* — Industry raw tokens — */
-    --industry-bg: #f2f2f3;
-    --industry-surface: #e9e9ea;
-    --industry-text: #1d1f20;
-    --industry-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+    /* — raw palette —
+       Sourced from the shop's own materials: the #0 line at the nape, a wet
+       corrugated-iron roof, talc dust on the mirror, a paper neck strip, the
+       Barbicide jar the combs stand in, and betel/red-earth stain. */
+    --nape: #191d1e;
+    --iron: #333a3c;
+    --talc: #8e9691;      /* muted text on DARK grounds — 5.60:1 on nape */
+    --talc-deep: #5f6764; /* muted text on LIGHT grounds — 4.66:1 on strip */
+    --strip: #e9e6de;
 
-    --brand-100: #eef6ff;
-    --brand-200: #d6ebff;
-    --brand-300: #b5d9fd;
-    --brand-400: #94bce3;
-    --brand-500: #749dc4;
-    --brand-600: #597ea3;
-    --brand-700: #416180;
-    --brand-800: #2c455d;
-    --brand-900: #1d2d3d;
-    --brand: #5980a6;
+    --barbicide: #0fa3ae;      /* fills, and text on nape — 5.56:1 */
+    --barbicide-ink: #097079;  /* text + icons on light — 4.67:1 on strip */
+    --betel: #b23a24;          /* text on light — 4.78:1 on strip */
+    --betel-light: #e8705a;    /* text on dark — 5.58:1 on nape */
 
-    --neutral-100: #f5f5f8;
-    --neutral-200: #e7e7ea;
-    --neutral-300: #d4d4d7;
-    --neutral-400: #b7b7ba;
-    --neutral-500: #98989b;
-    --neutral-600: #7a7a7d;
-    --neutral-700: #5d5d60;
-    --neutral-800: #424244;
-    --neutral-900: #2b2b2d;
+    /* — tonal steps of the fade itself, nape → strip.
+         These are the guard rail's bands and the section grounds. — */
+    --fade-0: #191d1e;
+    --fade-1: #2b3132;
+    --fade-2: #4a5250;
+    --fade-3: #79817d;
+    --fade-4: #b3b3ab;
+    --fade-5: #e9e6de;
 
-    /* — shadcn semantic roles, resolved onto the Industry palette — */
-    --background: #f2f2f3;
-    --foreground: #1d1f20;
-    --card: transparent;
-    --card-foreground: #1d1f20;
-    --popover: #f2f2f3;
-    --popover-foreground: #1d1f20;
-    --primary: #5980a6;
-    --primary-foreground: #f2f2f3;
-    --secondary: #e9e9ea;
-    --secondary-foreground: #1d1f20;
-    --muted: #e9e9ea;
-    --muted-foreground: #7d7e7f;
-    /* `accent` is shadcn's hover-surface role, not the brand — the brand is
-       `--brand` above and reaches Tailwind as `brand` / `brand-100…900`. */
-    --accent: #e2e2e4;
-    --accent-foreground: #1d1f20;
-    --destructive: #9a5a4e;
-    --destructive-foreground: #f2f2f3;
-    --border: color-mix(in srgb, #1d1f20 16%, transparent);
-    --input: color-mix(in srgb, #1d1f20 16%, transparent);
-    --ring: #5980a6;
+    /* — shadcn semantic roles, resolved onto the fade — */
+    --background: var(--strip);
+    --foreground: var(--nape);
+    --card: #f2efe8;
+    --card-foreground: var(--nape);
+    --popover: #f2efe8;
+    --popover-foreground: var(--nape);
+    --primary: var(--barbicide);
+    --primary-foreground: var(--nape);
+    --secondary: #ddd9d0;
+    --secondary-foreground: var(--nape);
+    --muted: #dedad1;
+    --muted-foreground: var(--talc-deep);
+    --accent: #d6d2c8;
+    --accent-foreground: var(--nape);
+    --destructive: var(--betel);
+    --destructive-foreground: var(--strip);
+    --border: color-mix(in srgb, var(--nape) 14%, transparent);
+    --input: color-mix(in srgb, var(--nape) 22%, transparent);
+    --ring: var(--barbicide-ink);
+
+    /* — `brand` aliases.
+         The admin side (out of scope for this pass) is written against
+         `brand-*`. Remapping them onto the Barbicide ramp keeps admin
+         coherent without touching admin files. — */
+    --brand: var(--barbicide-ink);
+    --brand-100: #e6f5f6;
+    --brand-200: #bfe6e9;
+    --brand-300: #8ed3d9;
+    --brand-400: #4fbcc4;
+    --brand-500: #0fa3ae;
+    --brand-600: #0d8b95;
+    --brand-700: #097079;
+    --brand-800: #075a61;
+    --brand-900: #05444a;
   }
 }
 
@@ -82,6 +99,24 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* named palette, reachable as bg-nape / text-talc-deep / border-iron … */
+  --color-nape: var(--nape);
+  --color-iron: var(--iron);
+  --color-talc: var(--talc);
+  --color-talc-deep: var(--talc-deep);
+  --color-strip: var(--strip);
+  --color-barbicide: var(--barbicide);
+  --color-barbicide-ink: var(--barbicide-ink);
+  --color-betel: var(--betel);
+  --color-betel-light: var(--betel-light);
+
+  --color-fade-0: var(--fade-0);
+  --color-fade-1: var(--fade-1);
+  --color-fade-2: var(--fade-2);
+  --color-fade-3: var(--fade-3);
+  --color-fade-4: var(--fade-4);
+  --color-fade-5: var(--fade-5);
+
   --color-brand: var(--brand);
   --color-brand-100: var(--brand-100);
   --color-brand-200: var(--brand-200);
@@ -93,155 +128,202 @@
   --color-brand-800: var(--brand-800);
   --color-brand-900: var(--brand-900);
 
-  --color-surface: var(--industry-surface);
+  /* Surfaces are filled and softly rounded — the old system's zero-radius
+     hairline boxes are gone. */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
 
-  /* Wireframe objects are square. */
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-full: 0px;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, Menlo, Consolas, monospace;
+  /* `font-heading` is referenced by admin files — keep it pointing somewhere
+     sensible rather than editing out-of-scope code. */
+  --font-heading: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
 
-  --font-sans: var(--font-barlow), system-ui, sans-serif;
-  --font-heading: var(--font-barlow-condensed), system-ui, sans-serif;
-  --font-mono: ui-monospace, Menlo, Consolas, monospace;
+  --animate-accordion-down: accordion-down 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-accordion-up: accordion-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background: var(--background);
     color: var(--foreground);
-    font-family: var(--font-barlow), system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.55;
+    font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
 
+  @media (min-width: 768px) {
+    body {
+      font-size: 17px;
+    }
+  }
+
+  /* — display type: heavy, expanded, lowercase, set tight.
+       The `wdth` axis is loaded by next/font; the stack degrades to a normal
+       -width Archivo if the variable axis is unavailable. — */
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    font-family: var(--font-barlow-condensed), system-ui, sans-serif;
-    font-weight: 600;
-    line-height: 1.12;
-    letter-spacing: -0.015em;
+    font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800;
+    font-stretch: 112%;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    text-transform: lowercase;
   }
+
   h1 {
-    font-size: 42px;
+    font-size: clamp(52px, 9vw, 104px);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
   }
   h2 {
-    font-size: 32px;
+    font-size: clamp(32px, 5vw, 52px);
   }
   h3 {
-    font-size: 25px;
+    font-size: clamp(24px, 2.4vw, 30px);
   }
-  h4 {
+  /* h4–h6 are UI titles, not display voice: normal width, sentence case. */
+  h4,
+  h5,
+  h6 {
+    font-weight: 700;
+    font-stretch: 100%;
     font-size: 20px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-transform: none;
   }
-  h5 {
-    font-size: 16px;
+
+  /* Numbers are data. Figures line up in columns and never reflow. */
+  .tabular,
+  time,
+  data {
+    font-variant-numeric: tabular-nums;
   }
 
   :focus-visible {
-    outline: 2px solid var(--brand);
+    outline: 3px solid var(--barbicide-ink);
     outline-offset: 2px;
+    border-radius: 2px;
   }
   ::selection {
-    background: color-mix(in srgb, var(--brand) 30%, transparent);
+    background: color-mix(in srgb, var(--barbicide) 32%, transparent);
+  }
+
+  /* Dark grounds carry the light-side focus ring and muted role. */
+  .on-dark :focus-visible {
+    outline-color: var(--barbicide);
   }
 }
 
 @layer components {
-  /* — blueprint frame: a hairline box with registration marks at its corners.
-       Marks are drawn by ::before/::after on the wrapper and on a single
-       `.corner` child is not needed — the frame renders all four itself. — */
-  .blueprint {
-    position: relative;
-    border: 1px solid var(--border);
-  }
-  .blueprint > .corner {
-    position: absolute;
-    width: 11px;
-    height: 11px;
-    color: color-mix(in srgb, var(--foreground) 55%, transparent);
-    pointer-events: none;
-  }
-  .blueprint > .corner::before,
-  .blueprint > .corner::after {
-    content: "";
-    position: absolute;
-    background: currentColor;
-  }
-  .blueprint > .corner::before {
-    left: 5px;
-    top: 0;
-    width: 1px;
-    height: 100%;
-  }
-  .blueprint > .corner::after {
-    top: 5px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-  }
-  .blueprint > .corner-tl {
-    top: -6px;
-    left: -6px;
-  }
-  .blueprint > .corner-tr {
-    top: -6px;
-    right: -6px;
-  }
-  .blueprint > .corner-bl {
-    bottom: -6px;
-    left: -6px;
-  }
-  .blueprint > .corner-br {
-    bottom: -6px;
-    right: -6px;
-  }
-  /* Inverted surfaces (the confirmation panel) carry pale marks. */
-  .blueprint-invert > .corner {
-    color: rgba(242, 242, 243, 0.55);
+  /* — the data label: mono, letterspaced, used ONLY to label a real datum
+       (a price, a duration, a guard number, a booking reference). Never as
+       generic decoration. — */
+  .data-label {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* — duotone: flattens a photograph onto the accent hue — */
+  /* — a filled surface. Replaces the old hairline `.blueprint` box. — */
+  .surface {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 1px 2px color-mix(in srgb, var(--nape) 6%, transparent),
+      0 1px 0 color-mix(in srgb, var(--nape) 4%, transparent);
+  }
+
+  /* ==========================================================================
+     LEGACY — the "Industry" classes below are still referenced by the pages
+     that have not been rebuilt yet (the old homepage, the booking wizard).
+     They are retuned to the new palette so nothing renders broken mid-revamp,
+     and are deleted in the final pass once the last reference goes.
+     ====================================================================== */
+  .blueprint {
+    position: relative;
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--nape) 8%, transparent);
+  }
+  .blueprint > .corner {
+    display: none;
+  }
+  .kicker {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--talc-deep);
+  }
+  .rule-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
   .duotone {
     position: relative;
   }
   .duotone > img {
     display: block;
   }
-  .duotone::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: var(--brand);
-    mix-blend-mode: color;
-  }
+}
 
-  /* — kicker: the condensed, letterspaced micro-label used throughout — */
-  .kicker {
-    font-family: var(--font-barlow-condensed), system-ui, sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    line-height: 1;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--foreground) 50%, transparent);
+/* Global reduced-motion floor. Framer Motion is handled in lib/motion.ts;
+   this covers CSS transitions/animations and smooth scrolling. Nothing may
+   be left mid-animation or invisible. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
-
-  /* — section rule: numbered heading over a full-strength ink rule — */
-  .rule-head {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    border-bottom: 1px solid var(--foreground);
-    padding-bottom: 8px;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

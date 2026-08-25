@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
+import { GuardRail } from "@/components/GuardRail"
 import { Blueprint } from "@/components/ui/blueprint"
 import { Button } from "@/components/ui/button"
 import { db } from "@/lib/prisma"
@@ -51,10 +52,24 @@ export default async function Home() {
     (_, i) => !hours.some((h) => h.dayOfWeek === i && h.isOpen),
   )
 
+  // Chunk A scaffolding: this page is rebuilt section by section in Chunk B.
+  // The rail is wired to the three sections that exist today purely so the
+  // component can be seen working end to end.
+  const railSections = [
+    { id: "hero", label: "Book a cut" },
+    { id: "services", label: "Services" },
+    { id: "details", label: "How it works" },
+  ]
+
   return (
-    <main className="flex-1">
+    <main id="main" className="flex-1 pt-[72px] lg:pl-7">
+      <GuardRail sections={railSections} />
+
       {/* — hero — */}
-      <section className="mx-auto grid max-w-[1080px] items-start gap-11 px-7 pt-14 lg:grid-cols-[1.15fr_.85fr]">
+      <section
+        id="hero"
+        className="mx-auto grid max-w-[1080px] items-start gap-11 px-7 pt-14 lg:grid-cols-[1.15fr_.85fr]"
+      >
         <div>
           <div className="font-heading text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-brand-700">
             Est. one chair · one barber
@@ -76,9 +91,6 @@ export default async function Home() {
                 <i className="corner corner-br" />
                 Book an appointment
               </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/manage">Manage a booking</Link>
             </Button>
           </div>
 
@@ -111,7 +123,7 @@ export default async function Home() {
       </section>
 
       {/* — services — */}
-      <section className="mx-auto max-w-[1080px] px-7 pt-13">
+      <section id="services" className="mx-auto max-w-[1080px] px-7 pt-13">
         <div className="rule-head">
           <span className="font-heading text-xs font-semibold tracking-[0.2em] text-brand-700">01</span>
           <h3 className="m-0">Services</h3>
@@ -149,7 +161,7 @@ export default async function Home() {
       </section>
 
       {/* — how it works — */}
-      <section className="mx-auto grid max-w-[1080px] gap-5 px-7 pt-12 pb-18 md:grid-cols-3">
+      <section id="details" className="mx-auto grid max-w-[1080px] gap-5 px-7 pt-12 pb-18 md:grid-cols-3">
         <Blueprint className="flex flex-col gap-2 p-4">
           <div className="text-[10px] uppercase tracking-[0.1em] text-brand">Add-ons</div>
           <div className="font-heading text-[17px] font-semibold leading-tight">

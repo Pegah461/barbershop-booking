@@ -1,50 +1,156 @@
 "use client"
 
+import { motion, useMotionValueEvent, useScroll } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
+import { Menu } from "lucide-react"
 
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { drawerItem, staggerGroup, transition } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 
+/**
+ * Nav targets are the homepage's section anchors. Labels are singular where
+ * the shop is singular — there is one chair and one barber, and a plural
+ * "Barbers" would promise a choice the booking flow does not offer.
+ */
 const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/book", label: "Book" },
-  { href: "/admin", label: "Admin" },
-]
+  { hash: "services", label: "Services" },
+  { hash: "barber", label: "Barber" },
+  { hash: "gallery", label: "Gallery" },
+  { hash: "faq", label: "FAQ" },
+  { hash: "contact", label: "Contact" },
+] as const
 
 export function SiteHeader() {
-  const path = usePathname()
+  const pathname = usePathname()
+  const [scrolled, setScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
+  const { scrollY } = useScroll()
+
+  // One scroll behaviour, done properly: past the fold the bar compresses and
+  // lays a translucent iron ground under itself so type stays readable over
+  // whatever is behind it.
+  useMotionValueEvent(scrollY, "change", (y) => {
+    setScrolled(y > 40)
+  })
+
+  // Anchors only resolve on the homepage — from anywhere else, route home first.
+  const onHome = pathname === "/"
+  const href = (hash: string) => (onHome ? `#${hash}` : `/#${hash}`)
+
+  // The bar is only allowed to be transparent where it overlays the dark hero.
+  // Every other route has a light ground, so it keeps its own dark bar.
+  const solid = scrolled || !onHome
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background">
-      <div className="flex items-center gap-5 px-5 py-3.5 sm:px-7">
-        <Link
-          href="/"
-          className="mr-auto font-heading text-lg font-semibold tracking-[0.05em]"
-        >
-          BARBERSHOP
-        </Link>
+    <>
+      <motion.header
+        // Consumed by the guard rail's mobile progress strip so it always sits
+        // flush under the bar, whatever height the bar currently is.
+        style={{ "--nav-h": scrolled ? "56px" : "72px" } as React.CSSProperties}
+        animate={{ height: scrolled ? 56 : 72 }}
+        transition={transition}
+        className={cn(
+          "on-dark fixed inset-x-0 top-0 z-50 flex items-center",
+          solid ? "bg-nape/90 backdrop-blur-md" : "bg-transparent",
+        )}
+      >
+        <div className="flex w-full items-center gap-6 px-5 sm:px-7 lg:pl-12">
+          <Link
+            href="/"
+            className="mr-auto font-display text-[19px] font-extrabold lowercase tracking-[-0.02em] text-strip"
+          >
+            fades
+            <span className="text-barbicide">.</span>
+          </Link>
 
-        {LINKS.map(({ href, label }) => {
-          const active = href === "/" ? path === "/" : path.startsWith(href)
-          return (
-            <Link
-              key={href}
-              href={href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "text-sm transition-colors hover:text-brand",
-                active ? "text-brand" : "text-foreground",
-              )}
+          {/* — desktop — */}
+          <nav aria-label="Main" className="hidden items-center gap-6 md:flex">
+            {LINKS.map(({ hash, label }) => (
+              <Link
+                key={hash}
+                href={href(hash)}
+                className="text-[15px] text-strip/75 transition-colors hover:text-strip"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          <Link
+            href="/book"
+            className="hidden rounded-md bg-barbicide px-4 py-2.5 font-display text-[15px] font-bold lowercase tracking-[-0.01em] text-nape transition-transform hover:scale-[1.03] active:scale-[0.98] md:inline-block"
+          >
+            book appointment
+          </Link>
+
+          {/* — mobile — */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                aria-label="Open menu"
+                className="-mr-2 flex h-11 w-11 items-center justify-center rounded-md text-strip md:hidden"
+              >
+                <Menu className="size-6" />
+              </button>
+            </SheetTrigger>
+
+            {/* SheetContent supplies its own labelled close control. */}
+            <SheetContent
+              side="right"
+              className="on-dark w-[min(20rem,85vw)] border-none bg-nape p-0 text-strip"
             >
-              {label}
-            </Link>
-          )
-        })}
+              <SheetTitle className="sr-only">Menu</SheetTitle>
+              <SheetDescription className="sr-only">
+                Site sections and the link to book an appointment.
+              </SheetDescription>
 
-        <span className="kicker ml-2 hidden text-[11px] sm:inline">
-          Mon–Sat · 9–18
-        </span>
-      </div>
-    </header>
+              <motion.nav
+                aria-label="Main"
+                variants={staggerGroup}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col gap-1 px-6 pt-20"
+              >
+                {LINKS.map(({ hash, label }) => (
+                  <motion.div key={hash} variants={drawerItem}>
+                    <Link
+                      href={href(hash)}
+                      onClick={() => setOpen(false)}
+                      className="block py-3 font-display text-[28px] font-extrabold lowercase tracking-[-0.02em] text-strip"
+                    >
+                      {label}
+                    </Link>
+                  </motion.div>
+                ))}
+
+                <motion.div variants={drawerItem} className="mt-6">
+                  <Link
+                    href="/book"
+                    onClick={() => setOpen(false)}
+                    className="block rounded-md bg-barbicide px-5 py-4 text-center font-display text-[17px] font-bold lowercase text-nape"
+                  >
+                    book appointment
+                  </Link>
+                </motion.div>
+              </motion.nav>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </motion.header>
+
+      {/* The homepage hero deliberately runs under the transparent bar; every
+          other route needs the space back. */}
+      {!onHome && <div aria-hidden className="h-[72px] shrink-0" />}
+    </>
   )
 }
