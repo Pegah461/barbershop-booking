@@ -19,15 +19,13 @@ export type RailSection = {
  *
  * A fade is a graded sequence of clipper-guard steps, dark at the nape and
  * light at the top. The rail renders the page as exactly that: one band per
- * section, stepping from `nape` down to `strip` in document order, numbered
- * the way guards actually are (#0 upward). The band you are currently reading
- * lights to Barbicide, so scrolling the page is scrolling through a fade.
+ * section, stepping from `nape` down to `strip` in document order. The band
+ * you are currently reading lights to Barbicide, so scrolling the page is
+ * scrolling through a fade.
  *
- * It is also real navigation: each band is a link to its section.
- *
- * Guard sizes run #0–#8 in the real world, so this stays honest up to nine
- * sections. Numbering here is legitimate because sections in document order
- * ARE a sequence — nothing else on the site is numbered.
+ * It is also real navigation: each band is a link to its section. The bands
+ * carry no visible numbering — the tonal step is the whole signal, and each
+ * band's accessible name says which section it goes to.
  */
 export function GuardRail({ sections }: { sections: RailSection[] }) {
   const [activeId, setActiveId] = useState<string | null>(sections[0]?.id ?? null)
@@ -93,20 +91,19 @@ export function GuardRail({ sections }: { sections: RailSection[] }) {
                       transition={motionSafe ? SPRING : { duration: 0 }}
                     />
                   )}
+                  {/* A short tick marks the band on hover/focus, so a pointer
+                      user gets feedback without any numbering. */}
                   <span
+                    aria-hidden
                     className={cn(
-                      "relative font-mono text-[11px] font-medium tabular-nums transition-colors",
+                      "relative h-5 w-px origin-center scale-y-0 transition-transform duration-150 group-hover:scale-y-100 group-focus-visible:scale-y-100",
                       active
-                        ? "text-nape"
+                        ? "bg-nape/60"
                         : i > sections.length / 2
-                          ? "text-nape/45 group-hover:text-nape"
-                          : "text-strip/45 group-hover:text-strip",
+                          ? "bg-nape/50"
+                          : "bg-strip/50",
                     )}
-                  >
-                    {/* The guard number. Screen readers get the real label
-                        above, so the glyph itself is decoration. */}
-                    <span aria-hidden>#{i}</span>
-                  </span>
+                  />
                 </a>
               </li>
             )

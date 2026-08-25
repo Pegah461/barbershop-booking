@@ -15,3 +15,15 @@ export function cn(...inputs: ClassValue[]) {
 export function formatMoney(cents: number) {
   return `${CURRENCY} $${(cents / 100).toFixed(2)}`
 }
+
+/** Minutes → "45 mins", "1 hr", "1 hr 30 mins". Display only. */
+export function formatDuration(mins: number) {
+  const hours = Math.floor(mins / 60)
+  const rest = mins % 60
+
+  const parts: string[] = []
+  if (hours > 0) parts.push(`${hours} hr${hours === 1 ? "" : "s"}`)
+  if (rest > 0) parts.push(`${rest} min${rest === 1 ? "" : "s"}`)
+
+  return parts.join(" ") || "0 mins"
+}

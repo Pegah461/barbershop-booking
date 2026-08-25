@@ -52,10 +52,20 @@ export function BookingWizard({
       const stored: WizardState = raw ? { ...DEFAULT_STATE, ...JSON.parse(raw) } : DEFAULT_STATE
       // A "Book this" deep link is an explicit choice — it overrides whatever
       // service was left in storage, and clears everything derived from it.
-      const next =
-        initialServiceId && initialServiceId !== stored.serviceId
-          ? { ...stored, serviceId: initialServiceId, addonIds: [], date: null, startsAt: null }
-          : stored
+      // The service is already picked, so the wizard opens on add-ons rather
+      // than asking the customer to confirm a choice they just made. Step
+      // order, validation and everything downstream are unchanged — this only
+      // moves where the flow is entered.
+      const next: WizardState = initialServiceId
+        ? {
+            ...stored,
+            ...(initialServiceId !== stored.serviceId
+              ? { serviceId: initialServiceId, addonIds: [], date: null, startsAt: null }
+              : {}),
+            step: 2,
+            maxStepReached: Math.max(stored.maxStepReached, 2),
+          }
+        : stored
       // One-time sync read of a browser-only API on mount — the `hydrated`
       // gate below (not this callback) is what prevents the SSR/CSR mismatch.
       // eslint-disable-next-line react-hooks/set-state-in-effect

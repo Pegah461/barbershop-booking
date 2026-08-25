@@ -21,6 +21,8 @@ const TAGS = {
   p: motion.p,
   span: motion.span,
   figure: motion.figure,
+  dl: motion.dl,
+  dd: motion.dd,
 } as const
 
 export type RevealTag = keyof typeof TAGS

@@ -96,10 +96,10 @@ export async function SiteFooter() {
             ) : null}
             <li>
               <Link
-                href="/#faq"
+                href="/#address"
                 className="underline underline-offset-4 decoration-talc hover:decoration-barbicide"
               >
-                Cancellations and walk-ins
+                Find the shop
               </Link>
             </li>
           </ul>

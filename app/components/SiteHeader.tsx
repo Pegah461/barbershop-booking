@@ -16,17 +16,13 @@ import {
 import { drawerItem, staggerGroup, transition } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 
-/**
- * Nav targets are the homepage's section anchors. Labels are singular where
- * the shop is singular — there is one chair and one barber, and a plural
- * "Barbers" would promise a choice the booking flow does not offer.
- */
+/** Nav targets are the homepage's section anchors, in document order. */
 const LINKS = [
   { hash: "services", label: "Services" },
-  { hash: "barber", label: "Barber" },
+  { hash: "about", label: "About" },
   { hash: "gallery", label: "Gallery" },
-  { hash: "faq", label: "FAQ" },
-  { hash: "contact", label: "Contact" },
+  { hash: "reviews", label: "Reviews" },
+  { hash: "address", label: "Address" },
 ] as const
 
 export function SiteHeader() {
@@ -85,13 +81,6 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <Link
-            href="/book"
-            className="hidden rounded-md bg-barbicide px-4 py-2.5 font-display text-[15px] font-bold lowercase tracking-[-0.01em] text-nape transition-transform hover:scale-[1.03] active:scale-[0.98] md:inline-block"
-          >
-            book appointment
-          </Link>
-
           {/* — mobile — */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -132,16 +121,6 @@ export function SiteHeader() {
                     </Link>
                   </motion.div>
                 ))}
-
-                <motion.div variants={drawerItem} className="mt-6">
-                  <Link
-                    href="/book"
-                    onClick={() => setOpen(false)}
-                    className="block rounded-md bg-barbicide px-5 py-4 text-center font-display text-[17px] font-bold lowercase text-nape"
-                  >
-                    book appointment
-                  </Link>
-                </motion.div>
               </motion.nav>
             </SheetContent>
           </Sheet>

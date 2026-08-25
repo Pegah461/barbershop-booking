@@ -214,3 +214,23 @@ model Review {
 
   @@unique([userId]) // one review per Google account
 }
+
+// Reviews left by customers on the public site. Kept separate from `Review`
+// above, which is tied to a signed-in Google account — the customer side has
+// no login, so a public review carries its own name/email instead.
+//
+// isApproved defaults to TRUE: reviews publish on submission because there is
+// no admin approval screen yet. Flipping a row to false hides it immediately,
+// and the admin phase can add a moderation queue without a further migration.
+model PublicReview {
+  id          String   @id @default(cuid())
+  rating      Int // 1–5
+  authorName  String
+  authorEmail String
+  comment     String?  @db.Text
+  isApproved  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isApproved, createdAt])
+}
