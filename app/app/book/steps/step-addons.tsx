@@ -1,6 +1,7 @@
 "use client"
 
-import { cn, formatMoney } from "@/lib/utils"
+import { Check } from "lucide-react"
+import { cn, formatDuration, formatMoney } from "@/lib/utils"
 import type { AddonOption } from "../types"
 
 export function StepAddons({
@@ -16,14 +17,19 @@ export function StepAddons({
 
   return (
     <div>
-      <h4 className="mb-0.5">Add-ons</h4>
-      <p className="mb-3 text-[13px] text-foreground/55">Optional — select any extras.</p>
+      <h2 className="text-[26px]">any extras?</h2>
+      <p className="mt-2 text-[15px] text-talc-deep">
+        Optional. Each one adds time to your appointment, and the calendar books
+        the full length.
+      </p>
 
       {addons.length === 0 && (
-        <p className="text-sm text-muted-foreground">No add-ons available.</p>
+        <p className="mt-6 text-[15px] text-talc-deep">
+          No extras listed right now — ask in the chair.
+        </p>
       )}
 
-      <div className="grid gap-2.5">
+      <div className="mt-6 space-y-3">
         {addons.map((a) => {
           const on = selectedIds.includes(a.id)
           return (
@@ -34,31 +40,31 @@ export function StepAddons({
               aria-checked={on}
               onClick={() => toggle(a.id)}
               className={cn(
-                "flex items-center justify-between gap-4 border px-3.5 py-3 text-left transition-colors",
-                on ? "border-brand bg-brand/[0.08]" : "border-border hover:border-foreground/40",
+                "flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-colors",
+                on
+                  ? "border-barbicide-ink bg-barbicide/[0.08]"
+                  : "border-nape/15 bg-strip hover:border-nape/30",
               )}
             >
-              <span>
-                <span className="block font-heading text-lg font-semibold">{a.name}</span>
-                <span className="text-xs text-foreground/55">
-                  +{a.extraDurationMins} min · {formatMoney(a.priceCents)}
+              <span className="min-w-0 flex-1">
+                <span className="block font-display text-[19px] font-bold lowercase leading-tight text-nape">
+                  {a.name}
+                </span>
+                <span className="mt-1 block font-mono text-[13px] tabular-nums text-talc-deep">
+                  +{formatDuration(a.extraDurationMins)}
+                  <span aria-hidden className="mx-2">·</span>
+                  <span className="font-medium text-nape">+{formatMoney(a.priceCents)}</span>
                 </span>
               </span>
 
-              {/* Square wireframe toggle — the system has no pills. */}
               <span
                 aria-hidden
                 className={cn(
-                  "relative block h-[22px] w-10 shrink-0 border transition-colors",
-                  on ? "border-brand bg-brand" : "border-border bg-transparent",
+                  "flex size-6 shrink-0 items-center justify-center rounded-md transition-colors",
+                  on ? "bg-barbicide text-nape" : "border border-nape/25",
                 )}
               >
-                <span
-                  className={cn(
-                    "absolute left-0.5 top-0.5 h-4 w-4 transition-transform",
-                    on ? "translate-x-[18px] bg-background" : "bg-foreground/40",
-                  )}
-                />
+                {on && <Check className="size-3.5" strokeWidth={3} />}
               </span>
             </button>
           )

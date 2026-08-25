@@ -1,44 +1,92 @@
 "use client"
 
+import { motion } from "framer-motion"
+
+import { useMotionSafe } from "@/components/motion/MotionProvider"
+import { SPRING } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 
 /**
- * Industry design system: the wizard's progress is a single hairline-divided
- * strip of segments, not a row of circles — the active step is a solid accent
- * fill, unreached steps are dimmed and inert.
+ * The wizard's progress, drawn with the same banded device as the homepage's
+ * guard rail — laid on its side. The customer recognises the object from the
+ * page they came in on.
+ *
+ * Steps are numbered here because the flow genuinely is a sequence; the
+ * homepage's sections are not, so its rail carries no numbers.
+ *
+ * Presentation only: `current`, `maxReached` and `onSelect` are owned by the
+ * wizard and this component never changes them.
  */
 export function StepIndicator({
-  labels, current, maxReached, onSelect,
+  labels,
+  current,
+  maxReached,
+  onSelect,
 }: {
-  labels: string[]; current: number; maxReached: number; onSelect: (step: number) => void
+  labels: string[]
+  current: number
+  maxReached: number
+  onSelect: (step: number) => void
 }) {
-  return (
-    <ol className="flex border border-border">
-      {labels.map((label, i) => {
-        const step = i + 1
-        const reachable = step <= maxReached
-        const active = step === current
+  const motionSafe = useMotionSafe()
 
-        return (
-          <li key={label} className="flex flex-1 first:[&>button]:border-l-0">
-            <button
-              type="button"
-              disabled={!reachable}
-              onClick={() => onSelect(step)}
-              aria-current={active ? "step" : undefined}
-              className={cn(
-                "flex w-full items-center justify-center gap-2 border-l border-border px-1 py-2.5 font-heading text-[13px] font-semibold tracking-[0.04em] transition-colors",
-                active ? "bg-brand text-primary-foreground" : "bg-transparent",
-                !reachable && "cursor-not-allowed opacity-40",
-                reachable && !active && "hover:bg-foreground/[0.06]",
-              )}
-            >
-              <span className="text-[11px] opacity-70">{String(step).padStart(2, "0")}</span>
-              <span className="hidden sm:inline">{label}</span>
-            </button>
-          </li>
-        )
-      })}
-    </ol>
+  return (
+    <nav aria-label="Booking steps">
+      <ol className="flex gap-1.5">
+        {labels.map((label, i) => {
+          const step = i + 1
+          const reachable = step <= maxReached
+          const active = step === current
+          const done = step < current
+
+          return (
+            <li key={label} className="flex-1">
+              <button
+                type="button"
+                disabled={!reachable}
+                onClick={() => onSelect(step)}
+                aria-current={active ? "step" : undefined}
+                aria-label={`Step ${step} of ${labels.length}: ${label}`}
+                className="group relative block w-full text-left"
+              >
+                {/* the band */}
+                <span className="relative block h-1.5 overflow-hidden rounded-full bg-nape/10">
+                  {active && (
+                    <motion.span
+                      layoutId="wizard-step-band"
+                      aria-hidden
+                      className="absolute inset-0 rounded-full bg-barbicide"
+                      transition={motionSafe ? SPRING : { duration: 0 }}
+                    />
+                  )}
+                  {done && (
+                    <span aria-hidden className="absolute inset-0 rounded-full bg-barbicide/35" />
+                  )}
+                </span>
+
+                <span
+                  className={cn(
+                    "mt-2 block font-mono text-[11px] tabular-nums transition-colors",
+                    active ? "text-nape" : "text-talc-deep",
+                    !reachable && "opacity-45",
+                  )}
+                >
+                  <span aria-hidden>{step}</span>
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "ml-1.5 hidden sm:inline",
+                      active ? "text-nape" : "text-talc-deep",
+                    )}
+                  >
+                    {label}
+                  </span>
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
+    </nav>
   )
 }

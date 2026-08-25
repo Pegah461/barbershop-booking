@@ -4,30 +4,27 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-// Industry design system: buttons are square wireframe objects — hairline
-// border, condensed type, no radius, no shadow.
+// Filled surfaces with a small radius. Case is deliberately NOT forced here —
+// the customer side writes its labels in lowercase to match the display voice,
+// while the admin panel keeps its own capitalisation.
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap border font-heading text-sm font-semibold leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-display font-bold tracking-[-0.01em] transition-[background-color,transform,box-shadow] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default:
-          "border-brand bg-brand text-primary-foreground hover:bg-brand-600 active:bg-brand-700",
-        destructive:
-          "border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        default: "bg-barbicide text-nape hover:bg-barbicide/90",
+        destructive: "bg-betel text-strip hover:bg-betel/90",
         outline:
-          "border-border bg-transparent hover:bg-foreground/[0.07] active:bg-foreground/[0.14]",
-        secondary:
-          "border-border bg-secondary text-secondary-foreground hover:bg-foreground/10",
-        ghost:
-          "border-transparent bg-transparent text-brand hover:bg-brand/10 active:bg-brand/20",
-        link: "border-transparent text-brand underline-offset-4 hover:underline",
+          "border border-nape/20 bg-transparent text-nape hover:border-nape/35 hover:bg-nape/[0.05]",
+        secondary: "bg-nape/[0.07] text-nape hover:bg-nape/[0.12]",
+        ghost: "text-barbicide-ink hover:bg-barbicide/10",
+        link: "text-barbicide-ink underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 px-3.5",
-        sm: "h-8 px-3 text-[13px]",
-        lg: "h-11.5 px-4.5 text-[15px]",
-        icon: "h-9 w-9 px-0",
+        default: "h-10 px-4 text-[15px]",
+        sm: "h-9 px-3 text-[14px]",
+        lg: "h-12 px-6 text-[16px]",
+        icon: "size-10 px-0",
       },
     },
     defaultVariants: {

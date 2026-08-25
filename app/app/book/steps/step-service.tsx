@@ -1,7 +1,7 @@
 "use client"
 
 import { Check } from "lucide-react"
-import { cn, formatMoney } from "@/lib/utils"
+import { cn, formatDuration, formatMoney } from "@/lib/utils"
 import type { ServiceOption } from "../types"
 
 export function StepService({
@@ -11,13 +11,19 @@ export function StepService({
 }) {
   return (
     <div>
-      <h4 className="mb-3.5">Choose a service</h4>
+      <h2 className="text-[26px]">choose a service</h2>
+      <p className="mt-2 text-[15px] text-talc-deep">
+        Extras come next — this is just the cut.
+      </p>
 
       {services.length === 0 && (
-        <p className="text-sm text-muted-foreground">No services are available right now.</p>
+        <p className="mt-6 text-[15px] text-talc-deep">
+          No services are available right now. Call the shop and we&rsquo;ll sort
+          you out.
+        </p>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-6 space-y-3">
         {services.map((s) => {
           const selected = s.id === selectedId
           return (
@@ -27,18 +33,32 @@ export function StepService({
               onClick={() => onSelect(s.id)}
               aria-pressed={selected}
               className={cn(
-                "relative border p-3.5 text-left transition-colors",
+                "flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-colors",
                 selected
-                  ? "border-brand bg-brand/[0.08]"
-                  : "border-border hover:border-foreground/40",
+                  ? "border-barbicide-ink bg-barbicide/[0.08]"
+                  : "border-nape/15 bg-strip hover:border-nape/30",
               )}
             >
-              {selected && <Check className="absolute right-3 top-3 h-[15px] w-[15px] text-brand" />}
-              <div className="pr-6 font-heading text-xl font-semibold">{s.name}</div>
-              <div className="text-xs text-foreground/55">{s.durationMins} min</div>
-              <div className="mt-1.5 font-heading text-[17px] font-semibold">
-                {formatMoney(s.priceCents)}
-              </div>
+              <span className="min-w-0 flex-1">
+                <span className="block font-display text-[19px] font-bold lowercase leading-tight text-nape">
+                  {s.name}
+                </span>
+                <span className="mt-1 block font-mono text-[13px] tabular-nums text-talc-deep">
+                  {formatDuration(s.durationMins)}
+                  <span aria-hidden className="mx-2">·</span>
+                  <span className="font-medium text-nape">{formatMoney(s.priceCents)}</span>
+                </span>
+              </span>
+
+              <span
+                aria-hidden
+                className={cn(
+                  "flex size-6 shrink-0 items-center justify-center rounded-full transition-colors",
+                  selected ? "bg-barbicide text-nape" : "border border-nape/25",
+                )}
+              >
+                {selected && <Check className="size-3.5" strokeWidth={3} />}
+              </span>
             </button>
           )
         })}

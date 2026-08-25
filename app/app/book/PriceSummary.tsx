@@ -1,12 +1,23 @@
-import { formatMoney } from "@/lib/utils"
+"use client"
+
+import { motion } from "framer-motion"
+
+import { formatDuration, formatMoney } from "@/lib/utils"
 import type { ServiceOption, AddonOption } from "./types"
 
 /**
  * The running selection band that sits under the step strip: what you've
  * picked on the left, duration and total on the right.
+ *
+ * `layout` is on because this genuinely changes size as add-ons go in and out
+ * — the total is the one number the customer is watching.
  */
 export function PriceSummary({
-  service, addons, totalCents, durationMins, whenLabel,
+  service,
+  addons,
+  totalCents,
+  durationMins,
+  whenLabel,
 }: {
   service: ServiceOption | null
   addons: AddonOption[]
@@ -14,23 +25,43 @@ export function PriceSummary({
   durationMins: number
   whenLabel?: string
 }) {
-  const selection = service
-    ? [service.name, ...addons.map((a) => a.name)].join(" + ") +
-      ` · ${whenLabel ?? "no time picked"}`
-    : "Select a service to see pricing."
+  const picked = service ? [service.name, ...addons.map((a) => a.name)] : []
 
   return (
-    <div className="flex items-center gap-4 border border-border bg-brand/[0.07] px-4 py-3">
+    <motion.div
+      layout
+      className="flex items-center gap-4 rounded-xl bg-nape px-5 py-4 text-strip"
+    >
       <div className="min-w-0 flex-1">
-        <div className="kicker">Selection</div>
-        <div className="truncate text-sm">{selection}</div>
+        <p className="data-label text-talc">Your booking</p>
+
+        {service ? (
+          <motion.p layout className="mt-1.5 text-[15px] leading-snug">
+            {picked.join(" + ")}
+            {whenLabel && (
+              <>
+                <span aria-hidden className="mx-1.5 text-talc">
+                  ·
+                </span>
+                <span className="text-talc">{whenLabel}</span>
+              </>
+            )}
+          </motion.p>
+        ) : (
+          <p className="mt-1.5 text-[15px] text-talc">
+            Pick a service to see the price.
+          </p>
+        )}
       </div>
-      <div className="shrink-0 text-right">
-        <div className="kicker">{durationMins} min</div>
-        <div className="font-heading text-[26px] font-semibold leading-none">
+
+      <motion.div layout className="shrink-0 text-right">
+        <p className="font-mono text-[12px] tabular-nums text-talc">
+          {formatDuration(durationMins)}
+        </p>
+        <p className="mt-1 font-mono text-[20px] font-medium tabular-nums leading-none">
           {formatMoney(totalCents)}
-        </div>
-      </div>
-    </div>
+        </p>
+      </motion.div>
+    </motion.div>
   )
 }

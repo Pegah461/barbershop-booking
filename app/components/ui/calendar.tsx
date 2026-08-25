@@ -9,8 +9,9 @@ import { buttonVariants } from "@/components/ui/button"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
-// Industry design system: the month grid is a sheet of hairline-bordered
-// cells in condensed type — square, flat, no rounding anywhere.
+// The month grid, in the fade system: filled day cells with a small radius,
+// dates in tabular mono so the columns line up, and the selected day carried
+// on Barbicide.
 function Calendar({
   className,
   classNames,
@@ -20,36 +21,36 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-2", className)}
       classNames={{
         months: "flex flex-col sm:flex-row gap-2",
-        month: "flex w-full flex-col gap-2.5",
+        month: "flex w-full flex-col gap-3",
         month_caption: "relative flex w-full items-center justify-center pt-1",
         caption_label:
-          "font-heading text-[17px] font-semibold tracking-[0.04em]",
+          "font-display text-[17px] font-bold lowercase tracking-[-0.01em] text-nape",
         nav: "absolute inset-x-0 top-0 flex items-center justify-between",
         button_previous: cn(
           buttonVariants({ variant: "ghost", size: "icon" }),
-          "size-8 opacity-70 hover:opacity-100",
+          "size-9",
         ),
         button_next: cn(
           buttonVariants({ variant: "ghost", size: "icon" }),
-          "size-8 opacity-70 hover:opacity-100",
+          "size-9",
         ),
         month_grid: "w-full border-collapse",
         weekdays: "flex",
         weekday:
-          "w-9 flex-1 pb-1 text-center font-heading text-[10px] font-semibold uppercase tracking-[0.1em] text-foreground/45",
-        week: "mt-0.5 flex w-full gap-0.5",
+          "w-9 flex-1 pb-2 text-center font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-talc-deep",
+        week: "mt-1 flex w-full gap-1",
         day: "relative flex-1 p-0 text-center focus-within:relative focus-within:z-20",
         day_button:
-          "flex h-9 w-full items-center justify-center border border-border font-heading text-sm font-semibold transition-colors hover:bg-foreground/[0.07] aria-selected:opacity-100",
+          "flex h-10 w-full items-center justify-center rounded-md font-mono text-[14px] tabular-nums text-nape transition-colors hover:bg-nape/[0.07] aria-selected:opacity-100",
         selected:
-          "[&>button]:border-brand-900 [&>button]:bg-brand-900 [&>button]:text-background [&>button]:hover:bg-brand-900",
-        today: "[&>button]:border-brand [&>button]:text-brand",
-        outside: "text-muted-foreground opacity-50",
+          "[&>button]:bg-barbicide [&>button]:text-nape [&>button]:font-medium [&>button]:hover:bg-barbicide",
+        today: "[&>button]:ring-1 [&>button]:ring-inset [&>button]:ring-barbicide-ink",
+        outside: "text-talc-deep opacity-50",
         disabled:
-          "opacity-30 [&>button]:pointer-events-none [&>button]:cursor-not-allowed",
+          "opacity-30 [&>button]:pointer-events-none [&>button]:cursor-not-allowed [&>button]:line-through",
         hidden: "invisible",
         ...classNames,
       }}

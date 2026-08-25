@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { formatInTimeZone } from "date-fns-tz"
+import { AlertCircle } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
-import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { SHOP_TZ } from "@/lib/timezone"
+import { cn } from "@/lib/utils"
 
 // The calendar grid operates on the browser's local calendar-date fields —
 // it never needs to know about SHOP_TZ, since a "day" here is just an
@@ -83,25 +85,32 @@ export function StepDatetime({
   }, [slotsKey])
 
   const slotsNote = !date
-    ? "Pick a date on the left to see the times that are still open."
+    ? "Pick a date to see the times that are still open."
     : loadingSlots
-      ? "Loading available times…"
+      ? "Checking what's free…"
       : displaySlots.length === 0
-        ? "No times available on this day — try another date."
-        : `${displaySlots.length} time${displaySlots.length === 1 ? "" : "s"} open. Times are shown in shop local time.`
+        ? "Nothing free on this day — try another date."
+        : `${displaySlots.length} time${displaySlots.length === 1 ? "" : "s"} open. Shop local time.`
 
   return (
     <div>
-      <h4 className="mb-3.5">Pick a date &amp; time</h4>
+      <h2 className="text-[26px]">pick a time</h2>
+      <p className="mt-2 text-[15px] text-talc-deep">
+        Greyed-out dates are closed, full, or too soon to book.
+      </p>
 
       {notice && (
-        <div className="mb-3.5 border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {notice}
+        <div
+          role="status"
+          className="mt-5 flex items-start gap-3 rounded-lg bg-betel/10 p-4 text-[15px] text-betel"
+        >
+          <AlertCircle aria-hidden className="mt-0.5 size-5 shrink-0" />
+          <span>{notice}</span>
         </div>
       )}
 
-      <div className="grid items-start gap-6 md:grid-cols-[296px_1fr]">
-        <div className="border border-border p-3">
+      <div className="mt-6 grid items-start gap-6 md:grid-cols-[320px_1fr]">
+        <div className="rounded-xl bg-strip p-2">
           <Calendar
             mode="single"
             month={month}
@@ -111,35 +120,48 @@ export function StepDatetime({
             disabled={(d) => loadingDays || !availableDays.has(localDateToDateStr(d))}
             className="p-0"
           />
-          <p className="mt-2.5 text-[11px] text-foreground/50">
-            Greyed dates are closed, fully booked, or inside the lead time.
-          </p>
         </div>
 
         <div>
-          <div className="kicker mb-2">
+          <p className="data-label text-talc-deep">
             {date
               ? `Times for ${format(dateStrToLocalDate(date), "EEEE, MMM d")}`
               : "Pick a date first"}
-          </div>
+          </p>
 
-          {displaySlots.length > 0 && !loadingSlots && (
-            <div className="grid grid-cols-3 gap-[7px] sm:grid-cols-4">
-              {displaySlots.map((slot) => (
-                <Button
-                  key={slot}
-                  type="button"
-                  size="sm"
-                  variant={slot === startsAt ? "default" : "outline"}
-                  onClick={() => onSlotChange(slot)}
-                >
-                  {formatInTimeZone(new Date(slot), SHOP_TZ, "h:mm a")}
-                </Button>
+          {loadingSlots && (
+            <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {Array.from({ length: 8 }, (_, i) => (
+                <Skeleton key={i} className="h-10 rounded-md bg-nape/10" />
               ))}
             </div>
           )}
 
-          <p className="mt-3 text-xs text-foreground/55">{slotsNote}</p>
+          {displaySlots.length > 0 && !loadingSlots && (
+            <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {displaySlots.map((slot) => {
+                const selected = slot === startsAt
+                return (
+                  <button
+                    key={slot}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => onSlotChange(slot)}
+                    className={cn(
+                      "h-10 rounded-md font-mono text-[13px] tabular-nums transition-colors",
+                      selected
+                        ? "bg-barbicide font-medium text-nape"
+                        : "bg-strip text-nape hover:bg-nape/[0.08]",
+                    )}
+                  >
+                    {formatInTimeZone(new Date(slot), SHOP_TZ, "h:mm a")}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          <p className="mt-3 text-[14px] text-talc-deep">{slotsNote}</p>
         </div>
       </div>
     </div>
