@@ -20,7 +20,11 @@ export function getBookingLockReason(
   if (status === BookingStatus.COMPLETED) return "This appointment has already been completed."
   if (status === BookingStatus.NO_SHOW) return "This appointment was marked as a no-show."
   if (isWithinCutoff(startsAt, cancelCutoffHours, now)) {
-    return "This appointment is coming up soon — please call the shop to cancel or reschedule."
+    // Name the window so the customer knows what the rule actually was,
+    // rather than just being told "too late".
+    return `Bookings can be moved or cancelled online up to ${cancelCutoffHours} hour${
+      cancelCutoffHours === 1 ? "" : "s"
+    } before the appointment. This one is closer than that — please call the shop.`
   }
   return null
 }

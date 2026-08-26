@@ -1,5 +1,12 @@
-import { Button, Section, Text } from "@react-email/components"
-import { EmailLayout, Row } from "./components/layout"
+import { Section, Text } from "@react-email/components"
+import {
+  ActionButton,
+  EmailLayout,
+  Paragraph,
+  ReferenceBlock,
+  Row,
+  emailTheme,
+} from "./components/layout"
 
 export type BookingConfirmationEmailProps = {
   reference: string
@@ -21,35 +28,38 @@ export default function BookingConfirmationEmail({
   return (
     <EmailLayout
       preview={`Your booking is confirmed for ${whenLabel}`}
-      heading="Booking confirmed"
+      heading="booking confirmed"
       shopName={shopName}
       shopPhone={shopPhone}
       shopEmail={shopEmail}
     >
-      <Text style={{ fontSize: "14px", color: "#3f3f46" }}>
-        Hi {customerName}, your appointment is booked. Here are the details:
-      </Text>
+      <Paragraph>
+        Hi {customerName} — the chair is yours. Show this reference when you
+        arrive, or just give your name.
+      </Paragraph>
 
-      <Section style={{ margin: "20px 0" }}>
-        <Row label="Reference" value={reference} />
+      <ReferenceBlock reference={reference} />
+
+      <Section style={{ margin: "0 0 24px" }}>
         <Row label="Service" value={serviceName} />
-        {addonNames.length > 0 && <Row label="Add-ons" value={addonNames.join(", ")} />}
+        {addonNames.length > 0 && <Row label="Extras" value={addonNames.join(", ")} />}
         <Row label="When" value={whenLabel} />
         <Row label="Total" value={totalLabel} />
       </Section>
 
-      <Button
-        href={manageUrl}
+      <ActionButton href={manageUrl}>manage booking</ActionButton>
+
+      <Text
         style={{
-          backgroundColor: "#18181b", color: "#ffffff", fontSize: "14px", fontWeight: 600,
-          padding: "12px 20px", borderRadius: "6px", textDecoration: "none",
+          margin: "16px 0 0",
+          fontSize: "13px",
+          lineHeight: 1.6,
+          color: emailTheme.MUTED,
         }}
       >
-        Manage your booking
-      </Button>
-
-      <Text style={{ fontSize: "12px", color: "#a1a1aa", marginTop: "16px" }}>
-        Need to change or cancel? Use the link above, or contact us directly.
+        Use that button to move your appointment to another time or cancel it.
+        The link is private to this booking and it&apos;s the only way to change
+        it online, so keep this email. Pay at the shop on the day.
       </Text>
     </EmailLayout>
   )

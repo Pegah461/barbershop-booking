@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { formatInTimeZone } from "date-fns-tz"
 import { db } from "@/lib/prisma"
@@ -5,11 +6,28 @@ import { BookingStatus } from "@/generated/prisma/enums"
 import { SHOP_TZ } from "@/lib/timezone"
 import { getBookingLockReason } from "@/lib/booking-cutoff"
 import { Badge } from "@/components/ui/badge"
+import { cn, formatDuration, formatMoney } from "@/lib/utils"
 import { ManageBookingActions } from "./ManageBookingActions"
+
+export const metadata: Metadata = {
+  title: "Your booking",
+  // Reached only through a private token link. It must never be indexed, and
+  // the token must not leak through a referrer.
+  robots: { index: false, follow: false },
+  referrer: "no-referrer",
+}
 
 const STATUS_COLORS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   PENDING: "outline", CONFIRMED: "default",
   CANCELLED: "destructive", COMPLETED: "secondary", NO_SHOW: "secondary",
+}
+
+/** What each status means to a customer, in words rather than a code. */
+const STATUS_NOTE: Record<string, string> = {
+  PENDING: "Booked in. We'll see you at the shop.",
+  CONFIRMED: "Confirmed. We'll see you at the shop.",
+  COMPLETED: "This one's done. Thanks for coming in.",
+  NO_SHOW: "Marked as a no-show.",
 }
 
 export default async function ManageBookingPage({
@@ -30,56 +48,69 @@ export default async function ManageBookingPage({
   const lockReason = getBookingLockReason(booking.status, booking.startsAt, settings?.cancelCutoffHours ?? 24)
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 px-4 py-12">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Your booking</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Reference <span className="font-mono">{booking.reference}</span>
-          </p>
-        </div>
-        <Badge variant={STATUS_COLORS[booking.status] ?? "outline"} className="text-sm">
-          {booking.status}
-        </Badge>
-      </div>
-
-      <div className="divide-y rounded-lg border bg-white">
-        <Section title="Appointment">
-          <Row label="Service" value={booking.serviceName} />
-          {booking.addons.length > 0 && (
-            <Row label="Add-ons" value={booking.addons.map((a) => a.addonName).join(", ")} />
+    <main id="main" className="flex-1">
+      <div className="mx-auto w-full max-w-[680px] px-5 py-12 sm:px-7 sm:py-16">
+        <header>
+          <p className="data-label text-talc-deep">Your booking</p>
+          <h1 className="mt-3 text-[clamp(38px,8vw,60px)]">
+            {formatInTimeZone(booking.startsAt, SHOP_TZ, "EEEE")}
+            <br />
+            {formatInTimeZone(booking.startsAt, SHOP_TZ, "h:mm a").toLowerCase()}
+          </h1>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <p className="text-[17px] text-talc-deep">
+              {formatInTimeZone(booking.startsAt, SHOP_TZ, "d MMMM yyyy")}
+            </p>
+            <Badge variant={STATUS_COLORS[booking.status] ?? "outline"}>{booking.status}</Badge>
+          </div>
+          {STATUS_NOTE[booking.status] && (
+            <p className="mt-3 text-[15px] text-talc-deep">{STATUS_NOTE[booking.status]}</p>
           )}
-          <Row label="When" value={formatInTimeZone(booking.startsAt, SHOP_TZ, "EEEE, MMM d yyyy 'at' h:mm a")} />
-          <Row label="Duration" value={`${booking.durationMins} minutes`} />
-          <Row label="Total" value={`$${(booking.totalCents / 100).toFixed(2)}`} bold />
-        </Section>
+        </header>
 
-        <Section title="Your details">
-          <Row label="Name" value={booking.customerName} />
-          <Row label="Phone" value={booking.customerPhone} />
-          <Row label="Email" value={booking.customerEmail} />
-        </Section>
+        <div className="mt-10 overflow-hidden rounded-xl bg-nape text-strip">
+          <div className="border-b border-strip/10 px-6 py-5">
+            <p className="data-label text-talc">Reference</p>
+            <p className="mt-2 font-mono text-[26px] font-medium leading-none tracking-[0.02em]">
+              {booking.reference}
+            </p>
+          </div>
+
+          <dl className="divide-y divide-strip/10 px-6">
+            <Row label="Service" value={booking.serviceName} />
+            {booking.addons.length > 0 && (
+              <Row label="Extras" value={booking.addons.map((a) => a.addonName).join(", ")} />
+            )}
+            <Row label="Takes" value={formatDuration(booking.durationMins)} />
+            <Row label="Total" value={formatMoney(booking.totalCents)} strong />
+            <Row label="Name" value={booking.customerName} />
+            <Row label="Phone" value={booking.customerPhone} />
+            <Row label="Email" value={booking.customerEmail} />
+          </dl>
+
+          <p className="px-6 py-5 text-[14px] text-talc">Pay at the shop. Cash on the day.</p>
+        </div>
+
+        <div className="mt-8">
+          <ManageBookingActions token={token} lockReason={lockReason} />
+        </div>
       </div>
-
-      <ManageBookingActions token={token} lockReason={lockReason} />
-    </div>
+    </main>
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className="space-y-2 p-4">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h2>
-      {children}
-    </div>
-  )
-}
-
-function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
-  return (
-    <div className="flex justify-between gap-4 text-sm">
-      <span className="shrink-0 text-muted-foreground">{label}</span>
-      <span className={`text-right break-words ${bold ? "font-semibold" : ""}`}>{value}</span>
+    <div className="flex items-baseline justify-between gap-6 py-3.5">
+      <dt className="data-label shrink-0 text-talc">{label}</dt>
+      <dd
+        className={cn(
+          "break-words text-right text-[15px]",
+          strong && "font-mono text-[18px] font-medium tabular-nums",
+        )}
+      >
+        {value}
+      </dd>
     </div>
   )
 }

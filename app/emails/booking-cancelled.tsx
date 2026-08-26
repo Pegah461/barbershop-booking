@@ -1,5 +1,5 @@
-import { Section, Text } from "@react-email/components"
-import { EmailLayout, Row } from "./components/layout"
+import { Section } from "@react-email/components"
+import { EmailLayout, Paragraph, Row } from "./components/layout"
 
 export type BookingCancelledEmailProps = {
   reference: string
@@ -16,24 +16,27 @@ export default function BookingCancelledEmail({
   return (
     <EmailLayout
       preview={`Your booking for ${whenLabel} has been cancelled`}
-      heading="Booking cancelled"
+      heading="booking cancelled"
       shopName={shopName}
       shopPhone={shopPhone}
       shopEmail={shopEmail}
     >
-      <Text style={{ fontSize: "14px", color: "#3f3f46" }}>
-        This appointment has been cancelled. If this wasn&apos;t you, please contact us.
-      </Text>
+      <Paragraph>
+        This appointment is cancelled and the slot has gone back on the
+        calendar. If you didn&apos;t do this, call the shop and we&apos;ll sort
+        it out.
+      </Paragraph>
 
-      <Section style={{ margin: "20px 0" }}>
+      <Section style={{ margin: "0 0 20px" }}>
         <Row label="Reference" value={reference} />
         <Row label="Service" value={serviceName} />
         <Row label="Was" value={whenLabel} />
       </Section>
 
-      <Text style={{ fontSize: "14px", color: "#3f3f46" }}>
-        Want to book again? We&apos;d love to see you.
-      </Text>
+      <Paragraph>
+        You&apos;re welcome back any time — walk in, or book another slot on the
+        site.
+      </Paragraph>
     </EmailLayout>
   )
 }

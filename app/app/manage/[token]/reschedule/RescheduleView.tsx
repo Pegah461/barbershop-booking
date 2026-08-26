@@ -36,34 +36,40 @@ export function RescheduleView({
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-12">
-      <div>
-        <h1 className="text-2xl font-bold">Reschedule your booking</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{serviceName}</p>
-      </div>
+    <main id="main" className="flex-1">
+      <div className="mx-auto w-full max-w-[760px] px-5 py-12 sm:px-7 sm:py-16">
+        <header>
+          <p className="data-label text-talc-deep">Rescheduling</p>
+          <h1 className="mt-3 text-[clamp(34px,7vw,52px)]">pick a new time</h1>
+          <p className="mt-4 text-[17px] text-talc-deep">
+            Keeping your {serviceName.toLowerCase()} — same booking, same price,
+            just a different slot.
+          </p>
+        </header>
 
-      <div className="rounded-lg border bg-white p-6">
-        <StepDatetime
-          key={refreshKey}
-          serviceId={serviceId}
-          addonIds={addonIds}
-          date={date}
-          startsAt={startsAt}
-          notice={notice}
-          slotsEndpoint={`/api/manage/${token}/slots`}
-          onDateChange={(d) => { setDate(d); setStartsAt(null); setNotice(undefined) }}
-          onSlotChange={(s) => { setStartsAt(s); setNotice(undefined) }}
-        />
-      </div>
+        <div className="mt-8 rounded-xl bg-card p-5 sm:p-7">
+          <StepDatetime
+            key={refreshKey}
+            serviceId={serviceId}
+            addonIds={addonIds}
+            date={date}
+            startsAt={startsAt}
+            notice={notice}
+            slotsEndpoint={`/api/manage/${token}/slots`}
+            onDateChange={(d) => { setDate(d); setStartsAt(null); setNotice(undefined) }}
+            onSlotChange={(s) => { setStartsAt(s); setNotice(undefined) }}
+          />
+        </div>
 
-      <div className="flex justify-between">
-        <Button variant="outline" asChild>
-          <Link href={`/manage/${token}`}>Back</Link>
-        </Button>
-        <Button onClick={handleSubmit} disabled={!startsAt || isPending}>
-          {isPending ? "Saving…" : "Confirm new time"}
-        </Button>
+        <div className="mt-6 flex flex-wrap justify-between gap-3">
+          <Button variant="outline" asChild>
+            <Link href={`/manage/${token}`}>back</Link>
+          </Button>
+          <Button onClick={handleSubmit} disabled={!startsAt || isPending}>
+            {isPending ? "moving it…" : "confirm new time"}
+          </Button>
+        </div>
       </div>
-    </div>
+    </main>
   )
 }

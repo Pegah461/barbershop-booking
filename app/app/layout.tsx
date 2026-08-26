@@ -65,6 +65,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // globals.css sets `scroll-behavior: smooth` for the in-page anchors.
+      // This tells Next it is deliberate, so it doesn't warn about smooth
+      // scrolling being applied during route transitions.
+      data-scroll-behavior="smooth"
       className={`${archivo.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">

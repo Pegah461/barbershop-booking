@@ -1,5 +1,12 @@
-import { Button, Section, Text } from "@react-email/components"
-import { EmailLayout, Row } from "./components/layout"
+import { Section, Text } from "@react-email/components"
+import {
+  ActionButton,
+  EmailLayout,
+  Paragraph,
+  ReferenceBlock,
+  Row,
+  emailTheme,
+} from "./components/layout"
 
 export type BookingRescheduledEmailProps = {
   reference: string
@@ -22,33 +29,38 @@ export default function BookingRescheduledEmail({
   return (
     <EmailLayout
       preview={`Your booking has moved to ${whenLabel}`}
-      heading="Booking rescheduled"
+      heading="booking moved"
       shopName={shopName}
       shopPhone={shopPhone}
       shopEmail={shopEmail}
     >
-      <Text style={{ fontSize: "14px", color: "#3f3f46" }}>
-        Hi {customerName}, your appointment has been moved. Here are the updated details:
-      </Text>
+      <Paragraph>
+        Hi {customerName} — your appointment has been moved. Here it is again.
+      </Paragraph>
 
-      <Section style={{ margin: "20px 0" }}>
-        <Row label="Reference" value={reference} />
+      <ReferenceBlock reference={reference} />
+
+      <Section style={{ margin: "0 0 24px" }}>
         <Row label="Service" value={serviceName} />
-        {addonNames.length > 0 && <Row label="Add-ons" value={addonNames.join(", ")} />}
+        {addonNames.length > 0 && <Row label="Extras" value={addonNames.join(", ")} />}
         <Row label="Was" value={previousWhenLabel} />
         <Row label="Now" value={whenLabel} />
         <Row label="Total" value={totalLabel} />
       </Section>
 
-      <Button
-        href={manageUrl}
+      <ActionButton href={manageUrl}>manage booking</ActionButton>
+
+      <Text
         style={{
-          backgroundColor: "#18181b", color: "#ffffff", fontSize: "14px", fontWeight: 600,
-          padding: "12px 20px", borderRadius: "6px", textDecoration: "none",
+          margin: "16px 0 0",
+          fontSize: "13px",
+          lineHeight: 1.6,
+          color: emailTheme.MUTED,
         }}
       >
-        Manage your booking
-      </Button>
+        That link is private to this booking — keep this email if you might need
+        to change it again.
+      </Text>
     </EmailLayout>
   )
 }

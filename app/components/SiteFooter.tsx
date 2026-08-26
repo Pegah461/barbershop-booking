@@ -23,7 +23,7 @@ export async function SiteFooter() {
   const rows = weekRows(hours)
 
   return (
-    <footer className="on-dark mt-auto bg-nape text-strip lg:pl-7">
+    <footer className="on-dark mt-auto bg-nape text-strip">
       <div className="mx-auto grid max-w-[1140px] gap-10 px-5 py-14 sm:px-7 md:grid-cols-3">
         <div>
           <p className="font-display text-[28px] font-extrabold lowercase leading-none tracking-[-0.025em]">

@@ -71,7 +71,7 @@ export function CollageHero({
       {/* — the thesis, laid over the collage — */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-nape via-nape/70 to-nape/10" />
 
-      <RevealGroup className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-10 sm:px-7 sm:pb-14 lg:pl-14">
+      <RevealGroup className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-10 sm:px-7 sm:pb-14">
         <div className="mx-auto max-w-[1140px]">
           <RevealItem as="p" className="data-label text-barbicide">
             Honiara Town · {openDays}

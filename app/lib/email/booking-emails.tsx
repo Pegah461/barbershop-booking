@@ -1,6 +1,7 @@
 import { formatInTimeZone } from "date-fns-tz"
 import { db } from "@/lib/prisma"
 import { SHOP_TZ } from "@/lib/timezone"
+import { formatMoney } from "@/lib/utils"
 import { sendEmail } from "./send"
 import BookingConfirmationEmail from "@/emails/booking-confirmation"
 import BookingRescheduledEmail from "@/emails/booking-rescheduled"
@@ -47,7 +48,7 @@ export async function sendBookingConfirmationEmail(bookingId: string): Promise<v
         serviceName={booking.serviceName}
         addonNames={booking.addons.map((a) => a.addonName)}
         whenLabel={formatInTimeZone(booking.startsAt, SHOP_TZ, WHEN_FORMAT)}
-        totalLabel={`$${(booking.totalCents / 100).toFixed(2)}`}
+        totalLabel={formatMoney(booking.totalCents)}
         manageUrl={url}
         {...shop}
       />
@@ -69,7 +70,7 @@ export async function sendAdminNewBookingEmail(bookingId: string): Promise<void>
         serviceName={booking.serviceName}
         addonNames={booking.addons.map((a) => a.addonName)}
         whenLabel={formatInTimeZone(booking.startsAt, SHOP_TZ, WHEN_FORMAT)}
-        totalLabel={`$${(booking.totalCents / 100).toFixed(2)}`}
+        totalLabel={formatMoney(booking.totalCents)}
         customerName={booking.customerName}
         customerPhone={booking.customerPhone}
         customerEmail={booking.customerEmail}
@@ -96,7 +97,7 @@ export async function sendBookingRescheduledEmail(bookingId: string, previousSta
         addonNames={booking.addons.map((a) => a.addonName)}
         previousWhenLabel={formatInTimeZone(previousStartsAt, SHOP_TZ, WHEN_FORMAT)}
         whenLabel={formatInTimeZone(booking.startsAt, SHOP_TZ, WHEN_FORMAT)}
-        totalLabel={`$${(booking.totalCents / 100).toFixed(2)}`}
+        totalLabel={formatMoney(booking.totalCents)}
         manageUrl={url}
         {...shop}
       />

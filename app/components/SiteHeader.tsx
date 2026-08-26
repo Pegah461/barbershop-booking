@@ -49,9 +49,6 @@ export function SiteHeader() {
   return (
     <>
       <motion.header
-        // Consumed by the guard rail's mobile progress strip so it always sits
-        // flush under the bar, whatever height the bar currently is.
-        style={{ "--nav-h": scrolled ? "56px" : "72px" } as React.CSSProperties}
         animate={{ height: scrolled ? 56 : 72 }}
         transition={transition}
         className={cn(
@@ -59,7 +56,7 @@ export function SiteHeader() {
           solid ? "bg-nape/90 backdrop-blur-md" : "bg-transparent",
         )}
       >
-        <div className="flex w-full items-center gap-6 px-5 sm:px-7 lg:pl-12">
+        <div className="mx-auto flex w-full max-w-[1140px] items-center gap-6 px-5 sm:px-7">
           <Link
             href="/"
             className="mr-auto font-display text-[19px] font-extrabold lowercase tracking-[-0.02em] text-strip"

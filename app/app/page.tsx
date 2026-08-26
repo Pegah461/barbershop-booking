@@ -1,4 +1,3 @@
-import { GuardRail } from "@/components/GuardRail"
 import { AboutSection } from "@/components/home/AboutSection"
 import { AddressSection } from "@/components/home/AddressSection"
 import { CollageHero } from "@/components/home/CollageHero"
@@ -10,16 +9,6 @@ import { db } from "@/lib/prisma"
 // Services, hours, gallery and reviews are all live data — this page must
 // never be frozen at build time.
 export const dynamic = "force-dynamic"
-
-/** The rail's bands, in document order. */
-const RAIL_SECTIONS = [
-  { id: "hero", label: "Top" },
-  { id: "services", label: "Services" },
-  { id: "about", label: "About" },
-  { id: "gallery", label: "Gallery" },
-  { id: "reviews", label: "Reviews" },
-  { id: "address", label: "Address" },
-]
 
 export default async function Home() {
   const [services, settings, hours, photos, reviews] = await Promise.all([
@@ -42,9 +31,7 @@ export default async function Home() {
   ])
 
   return (
-    <main id="main" className="flex-1 lg:pl-7">
-      <GuardRail sections={RAIL_SECTIONS} />
-
+    <main id="main" className="flex-1">
       <CollageHero photos={photos} hours={hours} />
 
       <ServicesSection services={services} />

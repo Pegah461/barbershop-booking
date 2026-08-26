@@ -1,5 +1,11 @@
-import { Button, Section, Text } from "@react-email/components"
-import { EmailLayout, Row } from "./components/layout"
+import { Section, Text } from "@react-email/components"
+import {
+  ActionButton,
+  EmailLayout,
+  ReferenceBlock,
+  Row,
+  emailTheme,
+} from "./components/layout"
 
 export type AdminNewBookingEmailProps = {
   reference: string
@@ -22,35 +28,34 @@ export default function AdminNewBookingEmail({
   return (
     <EmailLayout
       preview={`New booking from ${customerName} — ${whenLabel}`}
-      heading="New booking"
+      heading="new booking"
       shopName={shopName}
     >
-      <Section style={{ margin: "20px 0" }}>
-        <Row label="Reference" value={reference} />
-        <Row label="Service" value={serviceName} />
-        {addonNames.length > 0 && <Row label="Add-ons" value={addonNames.join(", ")} />}
+      <ReferenceBlock reference={reference} />
+
+      <Section style={{ margin: "0 0 24px" }}>
         <Row label="When" value={whenLabel} />
+        <Row label="Service" value={serviceName} />
+        {addonNames.length > 0 && <Row label="Extras" value={addonNames.join(", ")} />}
         <Row label="Total" value={totalLabel} />
         <Row label="Customer" value={customerName} />
         <Row label="Phone" value={customerPhone} />
         <Row label="Email" value={customerEmail} />
+        {customerComments && <Row label="Notes" value={customerComments} />}
       </Section>
 
-      {customerComments && (
-        <Text style={{ fontSize: "14px", color: "#3f3f46" }}>
-          <strong>Comments:</strong> {customerComments}
-        </Text>
-      )}
+      <ActionButton href={adminUrl}>open in admin</ActionButton>
 
-      <Button
-        href={adminUrl}
+      <Text
         style={{
-          backgroundColor: "#18181b", color: "#ffffff", fontSize: "14px", fontWeight: 600,
-          padding: "12px 20px", borderRadius: "6px", textDecoration: "none",
+          margin: "16px 0 0",
+          fontSize: "13px",
+          lineHeight: 1.6,
+          color: emailTheme.MUTED,
         }}
       >
-        View in admin
-      </Button>
+        Sent to the shop, not the customer.
+      </Text>
     </EmailLayout>
   )
 }
