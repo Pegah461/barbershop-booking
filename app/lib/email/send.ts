@@ -1,9 +1,21 @@
-import { Resend } from "resend"
+import nodemailer from "nodemailer"
 import { render } from "@react-email/render"
 import type { ReactElement } from "react"
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
-const FROM = process.env.RESEND_FROM_EMAIL || "Barbershop <onboarding@resend.dev>"
+const GMAIL_USER = process.env.GMAIL_USER
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD
+
+// Built once at module scope, like the client it replaces. `service: "gmail"`
+// resolves nodemailer's built-in Gmail host/port/TLS settings — an App
+// Password is required here, not the account's normal login password (Gmail
+// only accepts App Passwords over SMTP once 2-Step Verification is on).
+const transporter =
+  GMAIL_USER && GMAIL_APP_PASSWORD
+    ? nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
+      })
+    : null
 
 export async function sendEmail({
   to, subject, react, logExtra,
@@ -14,9 +26,10 @@ export async function sendEmail({
   /** Extra key/value lines printed above the HTML dump in console-fallback mode. */
   logExtra?: Record<string, string>
 }): Promise<void> {
-  if (!resend) {
-    const html = await render(react)
-    console.log(`\n───── [email] RESEND_API_KEY not set — logging instead of sending ─────`)
+  const html = await render(react)
+
+  if (!transporter) {
+    console.log(`\n───── [email] GMAIL_USER/GMAIL_APP_PASSWORD not set — logging instead of sending ─────`)
     console.log(`To: ${to}`)
     console.log(`Subject: ${subject}`)
     for (const [key, value] of Object.entries(logExtra ?? {})) console.log(`${key}: ${value}`)
@@ -25,6 +38,11 @@ export async function sendEmail({
     return
   }
 
-  const { error } = await resend.emails.send({ from: FROM, to, subject, react })
-  if (error) console.error("Failed to send email via Resend:", error)
+  // Callers treat email sending as best-effort — a delivery failure must
+  // never throw into the booking flow, so it's caught and logged here.
+  try {
+    await transporter.sendMail({ from: GMAIL_USER, to, subject, html })
+  } catch (error) {
+    console.error("Failed to send email via Gmail SMTP:", error)
+  }
 }
